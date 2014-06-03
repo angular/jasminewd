@@ -1,0 +1,30 @@
+{
+  "name": "jasminewd",
+  "description": "WebDriverJS adapter for Jasmine.",
+  "homepage": "https://github.com/angular/jasminewd",
+  "keywords": [
+    "test",
+    "testing",
+    "webdriver",
+    "webdriverjs",
+    "selenium",
+    "jasmine"
+  ],
+  "author": "Julie Ralph <ju.ralph@gmail.com>",
+  "devDependencies": {
+    "jshint": "2.5.0",
+    "minijasminenode": "0.4.0",
+    "selenium-webdriver": "2.42.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/angular/jasminewd.git"
+  },
+  "main": "index.js",
+  "scripts": {
+    "pretest": "node_modules/.bin/jshint index.js spec",
+    "test": "node node_modules/.bin/minijasminenode spec/adapterSpec.js"
+  },
+  "license": "MIT",
+  "version": "1.0.0"
+}

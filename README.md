@@ -1,4 +1,4 @@
-jasmindwd
+jasminewd
 =========
 
 Adapter for Jasmine-to-WebDriverJS
