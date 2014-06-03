@@ -13,6 +13,12 @@ Features
 
  - Enhances `expect` so that it automatically unwraps promises before performing the assertion.
 
+Installation
+------------
+```
+npm install jasminewd
+```
+
 Usage
 -----
 
@@ -34,10 +40,14 @@ minijn.executeSpecs(/* ... */);
 
 describe('tests with webdriver', function() {
   it('will wait until webdriver is done', function() {
+    // This will be an asynchronous test. It will finish once webdriver has
+    // loaded the page, found the element, and gotten its text.
     driver.get('http://www.example.com');
 
     var myElement = driver.findElement(webdriver.By.id('hello'));
 
+    // Here, expect understands that myElement.getText() is a promise,
+    // and resolves it before asserting.
     expect(myElement.getText()).toEqual('hello world');
   });
 })
