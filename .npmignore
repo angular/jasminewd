@@ -1,0 +1,4 @@
+node_modules/
+spec/
+.travis.yml
+.npmignore
