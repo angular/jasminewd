@@ -195,7 +195,7 @@ function wrapMatcher(matcher, actualPromise, not) {
  * Return a chained set of matcher functions which will be evaluated
  * after actualPromise is resolved.
  * @param {webdriver.promise.Promise} actualPromise The promise which will
- *     resolve to the acutal value being tested.
+ *     resolve to the actual value being tested.
  */
 function promiseMatchers(actualPromise) {
   var promises = {not: {}};
