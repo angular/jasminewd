@@ -159,7 +159,7 @@ function wrapMatcher(matcher, actualPromise, not) {
     actualPromise.then(function(actual) {
       var expected = originalArgs[0];
 
-      var expectation = expect(actual);
+      var expectation = originalExpect(actual);
       if (not) {
         expectation = expectation.not;
       }
