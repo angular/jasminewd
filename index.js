@@ -199,6 +199,19 @@ global.expect = function(actual) {
   }
 };
 
+var originalAddExpectationResult = jasmine.Spec.prototype.addExpectationResult;
+jasmine.Spec.prototype.addExpectationResult = function(passed, data) {
+  var self = this;
+  if (passed instanceof webdriver.promise.Promise) {
+    passed.then(function(result) {
+      data.passed = result;
+      originalAddExpectationResult.apply(self, [result, data]);
+    });
+  } else {
+    originalAddExpectationResult.apply(self, [passed, data]);
+  }
+};
+
 /**
  * A Jasmine reporter which does nothing but execute the input function
  * on a timeout failure.

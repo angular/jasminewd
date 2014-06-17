@@ -108,6 +108,16 @@ describe('webdriverJS Jasmine adapter', function() {
               // Maybe we can fix by adding a custom comparer?
               pass: actual.isDisplayed()
             };
+          },
+          // TODO - this is necessary because Jasmine does `!pass`
+          // if it tries to use the default negative compare, which will return
+          // true when pass is a promise.
+          negativeCompare: function(actual, expected) {
+            return {
+              pass: actual.isDisplayed().then(function(displayed) {
+                return !displayed;
+              })
+            }
           }
         };
       }
@@ -166,12 +176,10 @@ describe('webdriverJS Jasmine adapter', function() {
     expect(fakeDriver.getSmallNumber()).not.toBeLotsMoreThan(fakeDriver.getBigNumber());
   });
 
-  // BAD - problem with the way custom matchers are now registered.
-  // Unless we want to patch a whole lot of stuff about how Jasmine
-  // deals with matchers, matchers now can't return promises.
-  xit('should allow custom matchers to return a promise', function() {
+  // This kinda works, but the error messages are gross.
+  it('should allow custom matchers to return a promise', function() {
     expect(fakeDriver.getDisplayedElement()).toBeDisplayed();
-    expect(fakeDriver.getHiddenElement()).toBeDisplayed();
+    expect(fakeDriver.getHiddenElement()).not.toBeDisplayed();
   });
 
   // GOOD
@@ -212,18 +220,15 @@ describe('webdriverJS Jasmine adapter', function() {
   //   expect(fakeDriver.getValueB()).toEqual('b');
   // }, 300);
 
-  it('should time out', function() {
-    fakeDriver.sleep(9999);
-    expect(fakeDriver.getValueB()).toEqual('b');
-  });
+  xdescribe('timeouts', function() {
+    it('should time out', function() {
+      fakeDriver.sleep(9999);
+      expect(fakeDriver.getValueB()).toEqual('b');
+    });
 
-  // TODO - this doesn't work anymore. See https://github.com/pivotal/jasmine/issues/567
-  // it('should pass errors from done callback', function(done) {
-  //   done('an error');
-  // });
-
-  it('should pass after the timed out tests', function() {
-    expect(true).toEqual(true);
+    it('should pass after the timed out tests', function() {
+      expect(true).toEqual(true);
+    });
   });
 
   describe('should work for both synchronous and asynchronous tests', function() {
@@ -249,7 +254,12 @@ describe('webdriverJS Jasmine adapter', function() {
     });
   });
 
-  xdescribe('things that should fail', function() {
+  describe('things that should fail', function() {
+    // TODO - this doesn't work anymore. See https://github.com/pivotal/jasmine/issues/567
+    // it('should pass errors from done callback', function(done) {
+    //   done('an error');
+    // });
+
     it('should fail normal synchronous tests', function() {
       expect(true).toBe(false);
     });
@@ -297,8 +307,8 @@ describe('webdriverJS Jasmine adapter', function() {
     // BAD - problem with the way custom matchers are now registered.
     // Unless we want to patch a whole lot of stuff about how Jasmine
     // deals with matchers, matchers now can't return promises.
-    xit('should allow custom matchers to return a promise', function() {
-      expect(fakeDriver.getDisplayedElement()).toBeDisplayed();
+    it('should allow custom matchers to return a promise', function() {
+      expect(fakeDriver.getDisplayedElement()).not.toBeDisplayed();
       expect(fakeDriver.getHiddenElement()).toBeDisplayed();
     });
 
