@@ -13,7 +13,7 @@
   "author": "Julie Ralph <ju.ralph@gmail.com>",
   "devDependencies": {
     "jshint": "2.5.0",
-    "minijasminenode": "0.4.0",
+    "minijasminenode": "1.0.0-alpha.1",
     "selenium-webdriver": "2.42.0"
   },
   "repository": {

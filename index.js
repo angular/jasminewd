@@ -143,111 +143,60 @@ global.iit = wrapInControlFlow(global.iit, 'iit');
 global.beforeEach = wrapInControlFlow(global.beforeEach, 'beforeEach');
 global.afterEach = wrapInControlFlow(global.afterEach, 'afterEach');
 
-
-/**
- * Wrap a Jasmine matcher function so that it can take webdriverJS promises.
- * @param {!Function} matcher The matcher function to wrap.
- * @param {webdriver.promise.Promise} actualPromise The promise which will
- *     resolve to the actual value being tested.
- * @param {boolean} not Whether this is being called with 'not' active.
- */
-function wrapMatcher(matcher, actualPromise, not) {
-  return function() {
-    var originalArgs = arguments;
-    var matchError = new Error("Failed expectation");
-    matchError.stack = matchError.stack.replace(/ +at.+jasminewd.+\n/, '');
-    actualPromise.then(function(actual) {
-      var expected = originalArgs[0];
-
-      var expectation = expect(actual);
-      if (not) {
-        expectation = expectation.not;
-      }
-      var originalAddMatcherResult = expectation.spec.addMatcherResult;
-      var error = matchError;
-      expectation.spec.addMatcherResult = function(result) {
-        result.trace = error;
-        jasmine.Spec.prototype.addMatcherResult.call(this, result);
-      };
-
-      if (expected instanceof webdriver.promise.Promise) {
-        if (originalArgs.length > 1) {
-          throw error('Multi-argument matchers with promises are not ' +
-              'supported.');
-        }
-        expected.then(function(exp) {
-          expectation[matcher].apply(expectation, [exp]);
-          expectation.spec.addMatcherResult = originalAddMatcherResult;
-        });
-      } else {
-        expectation.spec.addMatcherResult = function(result) {
-          result.trace = error;
-          originalAddMatcherResult.call(this, result);
-        };
-        expectation[matcher].apply(expectation, originalArgs);
-        expectation.spec.addMatcherResult = originalAddMatcherResult;
-      }
-    });
-  };
-}
-
-/**
- * Return a chained set of matcher functions which will be evaluated
- * after actualPromise is resolved.
- * @param {webdriver.promise.Promise} actualPromise The promise which will
- *     resolve to the actual value being tested.
- */
-function promiseMatchers(actualPromise) {
-  var promises = {not: {}};
-  var env = jasmine.getEnv();
-  var matchersClass = env.currentSpec.matchersClass || env.matchersClass;
-
-  for (var matcher in matchersClass.prototype) {
-    promises[matcher] = wrapMatcher(matcher, actualPromise, false);
-    promises.not[matcher] = wrapMatcher(matcher, actualPromise, true);
-  }
-
-  return promises;
-}
-
 var originalExpect = global.expect;
 
 global.expect = function(actual) {
   if (actual instanceof webdriver.promise.Promise) {
-    if (actual instanceof webdriver.WebElement) {
-      throw 'expect called with WebElement argument, expected a Promise. ' +
-          'Did you mean to use .getText()?';
+    var originalExpectation = originalExpect('placeholder');
+
+    function makeAsyncMatcher(matcherName, actualPromise, not) {
+      return function() {
+        var originalArgs = arguments;
+        var matchError = new Error("Failed expectation");
+        matchError.stack = matchError.stack.replace(/ +at.+jasminewd.+\n/, '');
+        actualPromise.then(function(actual) {
+          var expected = originalArgs[0];
+
+          var expectation = originalExpect(actual);
+          if (not) {
+            expectation = expectation.not;
+          }
+          // TODO - stack traces suck now. Fix.
+          if (expected instanceof webdriver.promise.Promise) {
+            if (originalArgs.length > 1) {
+              throw error('Multi-argument matchers with promises are not ' +
+                  'supported.');
+            }
+            expected.then(function(exp) {
+              expectation[matcherName].apply(expectation, [exp]);
+            });
+          } else {
+            expectation[matcherName].apply(expectation, originalArgs);
+          }
+        });
+      };
     }
-    return promiseMatchers(actual);
+
+    function wrapExpectation(orig) {
+      for (var prop in orig) {
+        // TODO this quite hacky. Find a better way.
+        var EXPECTATION_PROPS_TO_IGNORE = [
+          'util', 'customEqualityTesters', 'actual', 'addExpectationResult',
+          'isNot', 'not', 'wrapCompare'];
+        if (EXPECTATION_PROPS_TO_IGNORE.indexOf(prop) === -1) {
+          var matcherName = prop;
+          orig[matcherName] = makeAsyncMatcher(matcherName, actual, false);
+          orig.not[matcherName] = makeAsyncMatcher(matcherName, actual, true);
+        }
+      }
+      return orig;
+    }
+
+    var wrapped = wrapExpectation(originalExpectation);
+    return wrapped;
   } else {
     return originalExpect(actual);
   }
-};
-
-// Wrap internal Jasmine function to allow custom matchers
-// to return promises that resolve to truthy or falsy values
-var originalMatcherFn = jasmine.Matchers.matcherFn_;
-jasmine.Matchers.matcherFn_ = function(matcherName, matcherFunction) {
-  var matcherFnThis = this;
-  var matcherFnArgs = jasmine.util.argsToArray(arguments);
-  return function() {
-    var matcherThis = this;
-    var matcherArgs = jasmine.util.argsToArray(arguments);
-    var result = matcherFunction.apply(this, arguments);
-
-    if (result instanceof webdriver.promise.Promise) {
-      result.then(function(resolution) {
-        matcherFnArgs[1] = function() {
-          return resolution;
-        };
-        originalMatcherFn.apply(matcherFnThis, matcherFnArgs).
-            apply(matcherThis, matcherArgs);
-      });
-    } else {
-      originalMatcherFn.apply(matcherFnThis, matcherFnArgs).
-          apply(matcherThis, matcherArgs);
-    }
-  };
 };
 
 /**
@@ -258,28 +207,17 @@ var OnTimeoutReporter = function(fn) {
   this.callback = fn;
 };
 
-OnTimeoutReporter.prototype.reportRunnerStarting = function() {};
-OnTimeoutReporter.prototype.reportRunnerResults = function() {};
-OnTimeoutReporter.prototype.reportSuiteResults = function() {};
-OnTimeoutReporter.prototype.reportSpecStarting = function() {};
-OnTimeoutReporter.prototype.reportSpecResults = function(spec) {
-  if (!spec.results().passed()) {
-    var result = spec.results();
-    var failureItem = null;
+OnTimeoutReporter.prototype.specDone = function(result) {
+  if (result.status != 'passed') {
+    for (var i = 0; i < result.failedExpectations.length; i++) {
+      var failureMessage = result.failedExpectations[i].message;
 
-    var items_length = result.getItems().length;
-    for (var i = 0; i < items_length; i++) {
-      if (result.getItems()[i].passed_ === false) {
-        failureItem = result.getItems()[i];
-
-        if (failureItem.toString().match(/timeout/)) {
-          this.callback();
-        }
+      if (failureMessage.match(/Timeout/)) {
+        this.callback();
       }
     }
   }
 };
-OnTimeoutReporter.prototype.log = function() {};
 
 // On timeout, the flow should be reset. This will prevent webdriver tasks
 // from overflowing into the next test and causing it to fail or timeout
