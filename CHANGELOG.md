@@ -1,3 +1,9 @@
+# 1.0.2
+
+## Bug Fixes
+- ([30b6811](https://github.com/angular/jasminewd/commit/30b68113759a7cb5c8dabc5b16ffcd89516882d8)) fix(timeout): output more information about the current task when a timeout occurs
+
+
 # 1.0.1
 
 ## Bug Fixes
