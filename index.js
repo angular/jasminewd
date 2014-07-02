@@ -288,7 +288,10 @@ OnTimeoutReporter.prototype.log = function() {};
 // get to complete first.
 jasmine.getEnv().addReporter(new OnTimeoutReporter(function() {
   console.warn('A Jasmine spec timed out. Resetting the WebDriver Control Flow.');
-  console.warn('The last active task was : ' +
-      flow.activeFrame_.getPendingTask().toString());
+  console.warn('The last active task was: ');
+  console.warn(
+      (flow.activeFrame_  && flow.activeFrame_.getPendingTask() ?
+          flow.activeFrame_.getPendingTask().toString() : 
+          'unknown'));
   flow.reset();
 }));
