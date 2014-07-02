@@ -1,8 +1,11 @@
+# 1.0.3
+## Bug Fixes
+- ([00821b3](https://github.com/angular/jasminewd/commit/00821b3180a6674012fdccab106835f5ce94bb3f)) fix(timeout): better messaging if the control flow does not have a listed last task
+
 # 1.0.2
 
 ## Bug Fixes
 - ([30b6811](https://github.com/angular/jasminewd/commit/30b68113759a7cb5c8dabc5b16ffcd89516882d8)) fix(timeout): output more information about the current task when a timeout occurs
-
 
 # 1.0.1
 
