@@ -19,6 +19,13 @@ function seal(fn) {
   };
 }
 
+function ensureTrailingNewline(text) {
+  if(text.slice(-1) == "\n") {
+    return text;
+  }
+  return text + "\n";
+}
+
 /**
  * Validates that the parameter is a function.
  * @param {Object} functionToValidate The function to validate.
@@ -103,7 +110,7 @@ function wrapInControlFlow(globalFn, fnName) {
         webdriver.promise.all([asyncFnDone, flowFinished]).then(function() {
           seal(done)();
         }, function(e) {
-          e.stack = e.stack + '==== async task ====\n' + driverError.stack;
+          e.stack = ensureTrailingNewline(e.stack) + '==== async task ====\n' + driverError.stack;
           done(e);
         });
       };
