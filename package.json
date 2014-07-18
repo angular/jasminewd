@@ -26,5 +26,5 @@
     "test": "node node_modules/.bin/minijasminenode spec/adapterSpec.js"
   },
   "license": "MIT",
-  "version": "1.0.3"
+  "version": "1.0.4"
 }

@@ -1,3 +1,12 @@
+# 1.0.4
+## Bug Fixes
+- ([a088e6f](https://github.com/angular/jasminewd/commit/a088e6f175ca817f59d5eea99549e45ab5861ce0)) fix(timeouts): should call special timeout handlers only for a jasmine timeout
+
+    Previously, it used to call the resets if anything matched 'timeout'. This was too
+    vague, since many error messages contain that string.
+
+    Closes #8
+
 # 1.0.3
 ## Bug Fixes
 - ([00821b3](https://github.com/angular/jasminewd/commit/00821b3180a6674012fdccab106835f5ce94bb3f)) fix(timeout): better messaging if the control flow does not have a listed last task
