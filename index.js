@@ -272,7 +272,9 @@ OnTimeoutReporter.prototype.reportSpecResults = function(spec) {
       if (result.getItems()[i].passed_ === false) {
         failureItem = result.getItems()[i];
 
-        if (failureItem.toString().match(/timeout/)) {
+        var jasmineTimeoutRegexp =
+            /timed out after \d+ msec waiting for spec to complete/;
+        if (failureItem.toString().match(jasmineTimeoutRegexp)) {
           this.callback();
         }
       }
