@@ -167,13 +167,12 @@ describe('webdriverJS Jasmine adapter', function() {
     });
   });
 
-  it('should throw an error with a WebElement actual value', function() {
+  it('should just log a warning with a WebElement actual value', function() {
     var webElement = new webdriver.WebElement(fakeDriver, 'idstring');
 
     expect(function() {
-      expect(webElement).toEqual(4);
-    }).toThrow('expect called with WebElement argument, expected a Promise. ' +
-        'Did you mean to use .getText()?');
+      expect(webElement).toBeDefined();
+    }).not.toThrow();
   });
 
   // Uncomment to see timeout failures.
