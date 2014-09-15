@@ -14,7 +14,7 @@
   "devDependencies": {
     "jshint": "2.5.0",
     "minijasminenode": "1.1.0",
-    "selenium-webdriver": "2.42.0"
+    "selenium-webdriver": "2.43.4"
   },
   "repository": {
     "type": "git",
