@@ -1,3 +1,8 @@
+# 1.1.0
+
+## Dependency Updates
+- ([daa67d6])(https://github.com/angular/jasminewd/commit/daa67d6eabdd9c70306748da8a0dc0a6f2edb90f)) chore(dependencies): update to selenium-webdriver 2.43.4
+
 # 1.0.4
 ## Bug Fixes
 - ([a088e6f](https://github.com/angular/jasminewd/commit/a088e6f175ca817f59d5eea99549e45ab5861ce0)) fix(timeouts): should call special timeout handlers only for a jasmine timeout
