@@ -91,13 +91,18 @@ function wrapInControlFlow(globalFn, fnName) {
         }
 
         var flowFinished = flow.execute(function() {
-          fn.call(jasmine.getEnv().currentSpec, function(userError) {
-            if (userError) {
-              asyncFnDone.reject(new Error(userError));
-            } else {
-              asyncFnDone.fulfill();
-            }
-          });
+          try {
+            fn.call(jasmine.getEnv().currentSpec, function(userError) {
+              if (userError) {
+                asyncFnDone.reject(new Error(userError));
+              } else {
+                asyncFnDone.fulfill();
+              }
+            });
+          }
+          catch (ex) {
+            asyncFnDone.reject(ex);
+          }
         }, desc_);
 
         webdriver.promise.all([asyncFnDone, flowFinished]).then(function() {
