@@ -1,5 +1,5 @@
-require('../index.js');
 var webdriver = require('selenium-webdriver');
+var common = require('./common.js');
 
 /**
  * Tests for the WebDriverJS Jasmine-Node Adapter. These tests use
@@ -7,69 +7,7 @@ var webdriver = require('selenium-webdriver');
  * webdriver.
  */
 
-var getFakeDriver = function() {
-  var flow = webdriver.promise.controlFlow();
-  return {
-    controlFlow: function() {
-      return flow;
-    },
-    sleep: function(ms) {
-      return flow.timeout(ms);
-    },
-    setUp: function() {
-      return flow.execute(function() {
-        return webdriver.promise.fulfilled('setup done');
-      });
-    },
-    getValueA: function() {
-      return flow.execute(function() {
-        return webdriver.promise.delayed(500).then(function() {
-          return webdriver.promise.fulfilled('a');
-        });
-      });
-    },
-    getOtherValueA: function() {
-      return flow.execute(function() {
-        return webdriver.promise.fulfilled('a');
-      });
-    },
-    getValueB: function() {
-      return flow.execute(function() {
-        return webdriver.promise.fulfilled('b');
-      });
-    },
-    getBigNumber: function() {
-      return flow.execute(function() {
-        return webdriver.promise.fulfilled(1111);
-      });
-    },
-    getDecimalNumber: function() {
-        return flow.execute(function() {
-          return webdriver.promise.fulfilled(3.14159);
-        });
-      },
-    getDisplayedElement: function() {
-      return flow.execute(function() {
-        return webdriver.promise.fulfilled({
-          isDisplayed: function() {
-            return webdriver.promise.fulfilled(true);
-          }
-        });
-      });
-    },
-    getHiddenElement: function() {
-      return flow.execute(function() {
-        return webdriver.promise.fulfilled({
-          isDisplayed: function() {
-            return webdriver.promise.fulfilled(false);
-          }
-        });
-      });
-    }
-  };
-};
-
-var fakeDriver = getFakeDriver();
+var fakeDriver = common.getFakeDriver();
 
 describe('webdriverJS Jasmine adapter plain', function() {
   it('should pass normal synchronous tests', function() {
@@ -80,24 +18,15 @@ describe('webdriverJS Jasmine adapter plain', function() {
 
 describe('webdriverJS Jasmine adapter', function() {
   // Shorten this and you should see tests timing out.
-  jasmine.getEnv().defaultTimeoutInterval = 2000;
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 2000;
 
   beforeEach(function() {
-    // 'this' should work properly to add matchers.
-    this.addMatchers({
-      toBeLotsMoreThan: function(expected) {
-        return this.actual > expected + 100;
-      },
-      // Example custom matcher returning a promise that resolves to true/false.
-      toBeDisplayed: function() {
-        return this.actual.isDisplayed();
-      }
-    });
+    jasmine.addMatchers(common.getMatchers());
   });
 
   beforeEach(function() {
     fakeDriver.setUp().then(function(value) {
-      console.log('This should print before each test: ' + value);
+      // console.log('This should print before each test: ' + value);
     });
   });
 
@@ -136,6 +65,8 @@ describe('webdriverJS Jasmine adapter', function() {
   it('should allow the use of custom matchers', function() {
     expect(500).toBeLotsMoreThan(3);
     expect(fakeDriver.getBigNumber()).toBeLotsMoreThan(33);
+    expect(fakeDriver.getBigNumber()).toBeLotsMoreThan(fakeDriver.getSmallNumber());
+    expect(fakeDriver.getSmallNumber()).not.toBeLotsMoreThan(fakeDriver.getBigNumber());
   });
 
   it('should allow custom matchers to return a promise', function() {
@@ -175,21 +106,6 @@ describe('webdriverJS Jasmine adapter', function() {
     }).toThrow('expect called with WebElement argument, expected a Promise. ' +
         'Did you mean to use .getText()?');
   });
-
-  // Uncomment to see timeout failures.
-
-  // it('should timeout after 200ms', function() {
-  //   expect(fakeDriver.getValueA()).toEqual('a');
-  // }, 300);
-
-  // it('should timeout after 300ms', function() {
-  //   fakeDriver.sleep(9999);
-  //   expect(fakeDriver.getValueB()).toEqual('b');
-  // }, 300);
-
-  // it('should pass errors from done callback', function(done) {
-  //   done('an error');
-  // });
 
   it('should pass after the timed out tests', function() {
     expect(fakeDriver.getValueA()).toEqual('a');

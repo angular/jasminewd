@@ -1,6 +1,6 @@
 {
-  "name": "jasminewd",
-  "description": "WebDriverJS adapter for Jasmine.",
+  "name": "jasminewd2",
+  "description": "WebDriverJS adapter for Jasmine2.",
   "homepage": "https://github.com/angular/jasminewd",
   "keywords": [
     "test",
@@ -13,7 +13,7 @@
   "author": "Julie Ralph <ju.ralph@gmail.com>",
   "devDependencies": {
     "jshint": "2.5.0",
-    "minijasminenode": "1.1.1",
+    "jasmine": "2.1.1",
     "selenium-webdriver": "2.43.4"
   },
   "repository": {
@@ -23,8 +23,8 @@
   "main": "index.js",
   "scripts": {
     "pretest": "node_modules/.bin/jshint index.js spec",
-    "test": "node node_modules/.bin/minijasminenode spec/adapterSpec.js"
+    "test": "scripts/test.sh"
   },
   "license": "MIT",
-  "version": "1.1.0"
+  "version": "1.0.0"
 }
