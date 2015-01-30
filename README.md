@@ -3,6 +3,10 @@ jasminewd [![Build Status](https://travis-ci.org/angular/jasminewd.png?branch=ma
 
 Adapter for Jasmine-to-WebDriverJS. Used by [Protractor](http://www.github.com/angular/protractor).
 
+**Important:** There are two active branches of jasminewd.
+
+ - [master](https://github.com/angular/jasminewd/tree/master) is an adapter for Jasmine 1.3, and uses the package minijasminenode. It is published to npm as `jasminewd`.
+ - [jasminewd2](https://github.com/angular/jasminewd/tree/jasminewd2) is an adapter for Jasmine 2.x, and uses the package jasmine. It is published to npm as `jasminewd2`.
 
 Features
 --------
