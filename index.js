@@ -75,8 +75,7 @@ function wrapInControlFlow(globalFn, fnName) {
     function asyncTestFn(fn) {
       return function(done) {
         // deferred object for signaling completion of asychronous function within globalFn
-        var asyncFnDone = webdriver.promise.defer(),
-          originalFail = jasmine.getEnv().fail;
+        var asyncFnDone = webdriver.promise.defer();
 
         if (fn.length === 0) {
           // function with globalFn not asychronous
@@ -86,20 +85,19 @@ function wrapInControlFlow(globalFn, fnName) {
         } else {
           // Add fail method to async done callback and override env fail to
           // reject async done promise
-          jasmine.getEnv().fail = asyncFnDone.fulfill.fail = function(userError) {
+          asyncFnDone.fulfill.fail = function(userError) {
             asyncFnDone.reject(new Error(userError));
           };
+
         }
 
         var flowFinished = flow.execute(function() {
           fn.call(jasmine.getEnv(), asyncFnDone.fulfill);
-        });
+        }, 'Run ' + fnName + ' in control flow');
 
         webdriver.promise.all([asyncFnDone, flowFinished]).then(function() {
-          jasmine.getEnv().fail = originalFail;
           seal(done)();
         }, function(e) {
-          jasmine.getEnv().fail = originalFail;
           e.stack = e.stack + '\n==== async task ====\n' + driverError.stack;
           done.fail(e);
         });
@@ -171,7 +169,7 @@ jasmine.Expectation.prototype.wrapCompare = function(name, matcherFactory) {
           return compare(actual, expected);
         });
       });
-    });
+    }, 'Expect ' + name);
 
     function compare(actual, expected) {
       var args = expected.slice(0);
@@ -258,10 +256,5 @@ OnTimeoutReporter.prototype.specDone = function(result) {
 // get to complete first.
 jasmine.getEnv().addReporter(new OnTimeoutReporter(function() {
   console.warn('A Jasmine spec timed out. Resetting the WebDriver Control Flow.');
-  console.warn('The last active task was: ');
-  console.warn(
-      (flow.activeFrame_ && flow.activeFrame_.getPendingTask() ?
-          flow.activeFrame_.getPendingTask().toString() : 
-          'unknown'));
   flow.reset();
 }));

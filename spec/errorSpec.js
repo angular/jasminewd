@@ -31,7 +31,7 @@ describe('things that should fail', function() {
   });
 
   it('should pass errors from done callback', function(done) {
-    done.fail('an error');
+    done.fail('an error from done.fail');
   });
 
   it('should fail normal synchronous tests', function() {
