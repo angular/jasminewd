@@ -75,7 +75,8 @@ function wrapInControlFlow(globalFn, fnName) {
     function asyncTestFn(fn) {
       return function(done) {
         // deferred object for signaling completion of asychronous function within globalFn
-        var asyncFnDone = webdriver.promise.defer();
+        var asyncFnDone = webdriver.promise.defer(),
+          testContext = this;
 
         if (fn.length === 0) {
           // function with globalFn not asychronous
@@ -92,7 +93,7 @@ function wrapInControlFlow(globalFn, fnName) {
         }
 
         var flowFinished = flow.execute(function() {
-          fn.call(jasmine.getEnv(), asyncFnDone.fulfill);
+          fn.call(testContext, asyncFnDone.fulfill);
         }, 'Run ' + fnName + ' in control flow');
 
         webdriver.promise.all([asyncFnDone, flowFinished]).then(function() {

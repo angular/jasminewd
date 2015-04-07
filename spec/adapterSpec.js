@@ -134,4 +134,31 @@ describe('webdriverJS Jasmine adapter', function() {
       }, 500);
     });
   });
+
+  describe("should pass actual context to test methods", function(){
+    var count = 0,
+      firstContextValue;
+
+    beforeEach(function(){
+      expect(this).toEqual({});
+    });
+
+    beforeEach(function(){
+      this.contextValue = count++;
+    });
+
+    afterEach(function(){
+      expect(this.contextValue).toBeDefined();
+    });
+
+    it('should generate a unique context', function(){
+      firstContextValue = this.contextValue;
+      expect(this.contextValue).toBeDefined();
+    });
+
+    it('should generate a different context', function(){
+      expect(firstContextValue).not.toEqual(this.contextValue);
+      expect(this.contextValue).toBeDefined();
+    });
+  });
 });
