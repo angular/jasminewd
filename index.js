@@ -72,34 +72,32 @@ function wrapInControlFlow(globalFn, fnName) {
     var driverError = new Error();
     driverError.stack = driverError.stack.replace(/ +at.+jasminewd.+\n/, '');
 
-    function asyncTestFn(fn) {
+    function asyncTestFn(fn, description) {
+      description = description ? ('("' + description + '")') : '';
       return function(done) {
-        // deferred object for signaling completion of asychronous function within globalFn
-        var asyncFnDone = webdriver.promise.defer();
+        var async = fn.length > 0;
+        testFn = fn.bind(this);
 
-        if (fn.length === 0) {
-          // function with globalFn not asychronous
-          asyncFnDone.fulfill();
-        } else if (fn.length > 1) {
-          throw Error('Invalid # arguments (' + fn.length + ') within function "' + fnName +'"');
-        } else {
-          // Add fail method to async done callback and override env fail to
-          // reject async done promise
-          asyncFnDone.fulfill.fail = function(userError) {
-            asyncFnDone.reject(new Error(userError));
-          };
-
-        }
-
-        var flowFinished = flow.execute(function() {
-          fn.call(jasmine.getEnv(), asyncFnDone.fulfill);
-        }, 'Run ' + fnName + ' in control flow');
-
-        webdriver.promise.all([asyncFnDone, flowFinished]).then(function() {
-          seal(done)();
-        }, function(e) {
-          e.stack = e.stack + '\n==== async task ====\n' + driverError.stack;
-          done.fail(e);
+        flow.execute(function controlFlowExecute() {
+          return new webdriver.promise.Promise(function(fulfill, reject) {
+            if (async) {
+              // If testFn is async (it expects a done callback), resolve the promise of this
+              // test whenever that callback says to.  Any promises returned from testFn are
+              // ignored.
+              var proxyDone = fulfill;
+              proxyDone.fail = function(err) {
+                reject(err);
+              };
+              testFn(proxyDone);
+            } else {
+              // Without a callback, testFn can return a promise, or it will
+              // be assumed to have completed synchronously.
+              fulfill(testFn());
+            }
+          }, flow);
+        }, 'Run ' + fnName + description + ' in control flow').then(seal(done), function(err) {
+          err.stack = err.stack + '\n==== async task ====\n' + driverError.stack;
+          done.fail(err);
         });
       };
     }
@@ -111,10 +109,10 @@ function wrapInControlFlow(globalFn, fnName) {
         description = validateString(arguments[0]);
         func = validateFunction(arguments[1]);
         if (!arguments[2]) {
-          globalFn(description, asyncTestFn(func));
+          globalFn(description, asyncTestFn(func, description));
         } else {
           timeout = validateNumber(arguments[2]);
-          globalFn(description, asyncTestFn(func), timeout);
+          globalFn(description, asyncTestFn(func, description), timeout);
         }
         break;
       case 'beforeEach':

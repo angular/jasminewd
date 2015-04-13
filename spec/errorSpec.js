@@ -38,6 +38,10 @@ describe('things that should fail', function() {
     expect(true).toBe(false);
   });
 
+  it('should fail when an error is thrown', function() {
+    throw new Error('I am an intentional error');
+  });
+
   it('should compare a promise to a primitive', function() {
     expect(fakeDriver.getValueA()).toEqual('d');
     expect(fakeDriver.getValueB()).toEqual('e');

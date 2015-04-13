@@ -8,7 +8,7 @@ $CMD
 [ "$?" -eq 0 ] || exit 1
 echo
 
-EXPECTED_RESULTS="13 specs, 12 failures"
+EXPECTED_RESULTS="14 specs, 13 failures"
 echo "### running failing specs (expecting $EXPECTED_RESULTS)" 
 CMD=$CMD_BASE$FAILING_SPECS
 res=`$CMD 2>/dev/null`
