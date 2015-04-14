@@ -9,7 +9,7 @@ $CMD
 echo
 
 EXPECTED_RESULTS="14 specs, 13 failures"
-echo "### running failing specs (expecting $EXPECTED_RESULTS)" 
+echo "### running failing specs (expecting $EXPECTED_RESULTS)"
 CMD=$CMD_BASE$FAILING_SPECS
 res=`$CMD 2>/dev/null`
 results_line=`echo "$res" | tail -2 | head -1`

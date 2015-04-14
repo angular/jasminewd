@@ -35,6 +35,7 @@ describe('context', function() {
 describe('webdriverJS Jasmine adapter', function() {
   // Shorten this and you should see tests timing out.
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 2000;
+  var beforeEachMsg;
 
   beforeEach(function() {
     jasmine.addMatchers(common.getMatchers());
@@ -42,8 +43,12 @@ describe('webdriverJS Jasmine adapter', function() {
 
   beforeEach(function() {
     fakeDriver.setUp().then(function(value) {
-      // console.log('This should print before each test: ' + value);
+      beforeEachMsg = value;
     });
+  });
+
+  afterEach(function() {
+    beforeEachMsg = '';
   });
 
   it('should pass normal synchronous tests', function() {
@@ -53,6 +58,10 @@ describe('webdriverJS Jasmine adapter', function() {
   it('should compare a promise to a primitive', function() {
     expect(fakeDriver.getValueA()).toEqual('a');
     expect(fakeDriver.getValueB()).toEqual('b');
+  });
+
+  it('beforeEach should wait for control flow', function() {
+    expect(beforeEachMsg).toEqual('setup done');
   });
 
   it('should wait till the expect to run the flow', function() {
@@ -147,6 +156,35 @@ describe('webdriverJS Jasmine adapter', function() {
         x = 1;
         done();
       }, 500);
+    });
+  });
+
+  describe('beforeAll and afterAll', function() {
+    var asyncValue, setupMsg;
+
+    beforeAll(function(done) {
+      setTimeout(function() {
+        asyncValue = 5;
+        done();
+      }, 500);
+    });
+
+    beforeAll(function() {
+      fakeDriver.setUp().then(function(msg) {
+        setupMsg = msg;
+      });
+    });
+
+    afterAll(function() {
+      setupMsg = '';
+    });
+
+    it('should have set asyncValue', function() {
+      expect(asyncValue).toEqual(5);
+    });
+
+    it('should wait for control flow', function() {
+      expect(setupMsg).toEqual('setup done');
     });
   });
 });
