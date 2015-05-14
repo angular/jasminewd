@@ -86,7 +86,8 @@ function wrapInControlFlow(globalFn, fnName) {
               // ignored.
               var proxyDone = fulfill;
               proxyDone.fail = function(err) {
-                reject(err);
+                var wrappedErr = new Error(err);
+                reject(wrappedErr);
               };
               testFn(proxyDone);
             } else {
@@ -96,7 +97,7 @@ function wrapInControlFlow(globalFn, fnName) {
             }
           }, flow);
         }, 'Run ' + fnName + description + ' in control flow').then(seal(done), function(err) {
-          err.stack = err.stack + '\n==== async task ====\n' + driverError.stack;
+          err.stack = err.stack + '\nFrom asynchronous test: \n' + driverError.stack;
           done.fail(err);
         });
       };
