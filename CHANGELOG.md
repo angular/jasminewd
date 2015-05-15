@@ -1,42 +1,39 @@
-# 1.1.0
+# Changelog for jasminewd2
 
-## Dependency Updates
-- ([daa67d6])(https://github.com/angular/jasminewd/commit/daa67d6eabdd9c70306748da8a0dc0a6f2edb90f)) chore(dependencies): update to selenium-webdriver 2.43.4
+# 0.0.5
 
-# 1.0.4
-## Bug Fixes
-- ([a088e6f](https://github.com/angular/jasminewd/commit/a088e6f175ca817f59d5eea99549e45ab5861ce0)) fix(timeouts): should call special timeout handlers only for a jasmine timeout
+- ([037c7de](https://github.com/angular/jasminewd/commit/037c7de7fea4de068734b6fa250d145800863633))
+  chore(dependencies): update Jasmine to 2.3.1
 
-    Previously, it used to call the resets if anything matched 'timeout'. This was too
-    vague, since many error messages contain that string.
+# 0.0.4
 
-    Closes #8
+- ([8f8b8b3](https://github.com/angular/jasminewd/commit/8f8b8b39e779559fd3b29b138d7577658b8a64b7))
+  tests(context): test that the `this` variable points to the right thing
 
-# 1.0.3
-## Bug Fixes
-- ([00821b3](https://github.com/angular/jasminewd/commit/00821b3180a6674012fdccab106835f5ce94bb3f)) fix(timeout): better messaging if the control flow does not have a listed last task
+  Note: this means that using `this.addMatchers` no longer works inside before blocks or specs. It
+  should have been changed to `jamsine.addMatchers` since the upgrade to Jasmine 2. It was still
+  working by accident up until the previous commit.
 
-# 1.0.2
+- ([c0f13d2](https://github.com/angular/jasminewd/commit/c0f13d254966c859db22d020a5390138dbf48e64))
+  refactor(asyncTestFn): refactor async test wrapping to show more info
 
-## Bug Fixes
-- ([30b6811](https://github.com/angular/jasminewd/commit/30b68113759a7cb5c8dabc5b16ffcd89516882d8)) fix(timeout): output more information about the current task when a timeout occurs
+  Test wrapping for Jasmine 2 now more closely follows the test wrapping for Mocha at
+  https://github.com/SeleniumHQ/selenium/blob/master/javascript/node/selenium-webdriver/testing/index.js
 
-# 1.0.1
+  This also adds more information to the task names in the control flow, for easier debugging.
 
-## Bug Fixes
-- ([c507b37](https://github.com/angular/jasminewd/commit/c507b37dd04cf267a437a579fc3b14063abb2ef8))
-  fix(index): stop infinite promise resolution
+# 0.0.3
 
-1.0.0
-=====
+- ([161e1fa](https://github.com/angular/jasminewd/commit/161e1fa48deaa5ea0f485027ea8ae41562864936))
+  fix(errors): update webdriverjs, fix asynchronous error output
 
-Support for Jasmine 1.3.1. Tested against minijasminenode @ 0.4.0.
+  Add some console logging, remove useless info about the last running task in the control flow, and
+  fix error where problems reported from done.fail were getting pushed into the following spec.
 
-Features
+  Closes #18
 
- - Automatically makes tests asynchronously wait until the WebDriverJS control flow is empty.
+- ([fdb03a3](https://github.com/angular/jasminewd/commit/fdb03a388d4846952c09fb0ad75a37b46674c750))
+  docs(readme): add note about jasmine 1 vs jasmine 2
 
- - If a `done` function is passed to the test, waits for both the control flow and until done is called.
-
- - Enhances `expect` so that it automatically unwraps promises before performing the assertion.
-
+- ([acaec8b](https://github.com/angular/jasminewd/commit/acaec8bdd157e9933d608c66204a52335fb46ee4))
+  feat(index): add jasmine2.0 support
