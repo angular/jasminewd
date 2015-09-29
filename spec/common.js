@@ -64,6 +64,27 @@ exports.getFakeDriver = function() {
           }
         });
       }, 'getHiddenElement');
+    },
+    getValueList: function() {
+      return flow.execute(function() {
+        return webdriver.promise.fulfilled([{
+          getText: function() {
+            return flow.execute(function() { return webdriver.promise.fulfilled('a');});
+          }
+        }, {
+          getText: function() {
+            return flow.execute(function() { return webdriver.promise.fulfilled('b');});
+          }
+        }, {
+          getText: function() {
+            return flow.execute(function() { return webdriver.promise.fulfilled('c');});
+          }
+        }, {
+          getText: function() {
+            return flow.execute(function() { return webdriver.promise.fulfilled('d');});
+          }
+        }]);
+      }, 'getValueList');
     }
   };
 };

@@ -162,13 +162,11 @@ jasmine.Expectation.prototype.wrapCompare = function(name, matcherFactory) {
 
     matchError.stack = matchError.stack.replace(/ +at.+jasminewd.+\n/, '');
 
-    flow.execute(function() {
-      return webdriver.promise.when(expectation.actual).then(function(actual) {
-        return webdriver.promise.all(expected).then(function(expected) {
-          return compare(actual, expected);
-        });
+    webdriver.promise.when(expectation.actual).then(function(actual) {
+      return webdriver.promise.all(expected).then(function(expected) {
+        return compare(actual, expected);
       });
-    }, 'Expect ' + name);
+    });
 
     function compare(actual, expected) {
       var args = expected.slice(0);

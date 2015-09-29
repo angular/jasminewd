@@ -109,6 +109,34 @@ describe('webdriverJS Jasmine adapter', function() {
       expect(fakeDriver.getDecimalNumber()).toBeCloseTo(3.14);
     });
 
+  it('should allow iterating through arrays', function() {
+    // This is a convoluted test which shows a real issue which
+    // cropped up in version changes to the selenium-webdriver module.
+    // See https://github.com/angular/protractor/pull/2263
+    var checkTexts = function(webElems) {
+      var texts = webElems.then(function(arr) {
+        var results = arr.map(function(webElem) {
+          return webElem.getText();
+        });
+        return webdriver.promise.all(results);
+      });
+
+      expect(texts).not.toContain('e');
+
+      return true;
+    };
+
+    fakeDriver.getValueList().then(function(list) {
+      var result = list.map(function(webElem) {
+        var webElemsPromise = webdriver.promise.fulfilled(webElem).then(function(webElem) {
+          return [webElem];
+        });
+        return webdriver.promise.fullyResolved(checkTexts(webElemsPromise));
+      });
+      return webdriver.promise.all(result);
+    });
+  });
+
   describe('not', function() {
     it('should still pass normal synchronous tests', function() {
       expect(4).not.toEqual(5);
