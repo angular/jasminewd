@@ -1,5 +1,18 @@
 # Changelog for jasminewd2
 
+# 0.0.6
+
+- ([4776c16](https://github.com/angular/jasminewd/commit/4776c16b9a9f3a9a3de8a8dddc0e051cb32331b4))
+  chore(selenium-webdriver): update selenium webdriver to 2.47.0
+
+  Update selenium-webdriver to 2.47.0 from 2.45.1. This update introduces a convoluted situation
+  where some tests in Proractor's suite would hang - see
+  https://github.com/angular/protractor/issues/2245
+
+  This change includes a fix for those issues which removes the explicit
+  `flow.execute` wrapper around `expect` calls. This appears not to introduce any issues to existing
+  tests.
+
 # 0.0.5
 
 - ([037c7de](https://github.com/angular/jasminewd/commit/037c7de7fea4de068734b6fa250d145800863633))
