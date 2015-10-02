@@ -14,6 +14,12 @@ describe('webdriverJS Jasmine adapter plain', function() {
   it('should pass normal synchronous tests', function() {
     expect(true).toBe(true);
   });
+
+  it('should allow an empty it block and mark as pending');
+
+  xit('should allow a spec marked as pending with xit', function() {
+    expect(true).toBe(false);
+  });
 });
 
 describe('context', function() {

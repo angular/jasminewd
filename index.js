@@ -108,6 +108,10 @@ function wrapInControlFlow(globalFn, fnName) {
       case 'it':
       case 'fit':
         description = validateString(arguments[0]);
+        if (!arguments[1]) {
+          globalFn(description);
+          break;
+        }
         func = validateFunction(arguments[1]);
         if (!arguments[2]) {
           globalFn(description, asyncTestFn(func, description));
