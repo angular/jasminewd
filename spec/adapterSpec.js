@@ -221,4 +221,16 @@ describe('webdriverJS Jasmine adapter', function() {
       expect(setupMsg).toEqual('setup done');
     });
   });
+
+  describe('it return value', function() {
+    var spec1 = it('test1');
+    var spec2 = it('test2', function() {});
+    var spec3 = it('test3', function() {}, 1);
+
+    it('should return the spec', function() {
+      expect(spec1.description).toBe('test1');
+      expect(spec2.description).toBe('test2');
+      expect(spec3.description).toBe('test3');
+    });
+  });
 });

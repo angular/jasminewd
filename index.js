@@ -109,15 +109,14 @@ function wrapInControlFlow(globalFn, fnName) {
       case 'fit':
         description = validateString(arguments[0]);
         if (!arguments[1]) {
-          globalFn(description);
-          break;
+          return globalFn(description);
         }
         func = validateFunction(arguments[1]);
         if (!arguments[2]) {
-          globalFn(description, asyncTestFn(func, description));
+          return globalFn(description, asyncTestFn(func, description));
         } else {
           timeout = validateNumber(arguments[2]);
-          globalFn(description, asyncTestFn(func, description), timeout);
+          return globalFn(description, asyncTestFn(func, description), timeout);
         }
         break;
       case 'beforeEach':
