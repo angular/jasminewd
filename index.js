@@ -103,21 +103,21 @@ function wrapInControlFlow(globalFn, fnName) {
       };
     }
 
-    var description, func, timeout;
+    var description, func, timeout, spec;
     switch (fnName) {
       case 'it':
       case 'fit':
         description = validateString(arguments[0]);
         if (!arguments[1]) {
-          globalFn(description);
+          spec = globalFn(description);
           break;
         }
         func = validateFunction(arguments[1]);
         if (!arguments[2]) {
-          globalFn(description, asyncTestFn(func, description));
+          spec = globalFn(description, asyncTestFn(func, description));
         } else {
           timeout = validateNumber(arguments[2]);
-          globalFn(description, asyncTestFn(func, description), timeout);
+          spec = globalFn(description, asyncTestFn(func, description), timeout);
         }
         break;
       case 'beforeEach':
@@ -126,15 +126,16 @@ function wrapInControlFlow(globalFn, fnName) {
       case 'afterAll':
         func = validateFunction(arguments[0]);
         if (!arguments[1]) {
-          globalFn(asyncTestFn(func));
+          spec = globalFn(asyncTestFn(func));
         } else {
           timeout = validateNumber(arguments[1]);
-          globalFn(asyncTestFn(func), timeout);
+          spec = globalFn(asyncTestFn(func), timeout);
         }
         break;
       default:
         throw Error('invalid function: ' + fnName);
     }
+    return spec;
   };
 }
 
