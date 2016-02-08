@@ -1,5 +1,13 @@
 # Changelog for jasminewd2
 
+# 0.0.7
+
+- ([55fd11e](https://github.com/angular/protractor/commit/55fd11e69c2f1ba8fba9a19a8acccbe933896084))
+  fix(index): forward it's return value
+
+- ([f4c30a0](https://github.com/angular/protractor/commit/f4c30a0023c6ec33b15df762226c3fe8e741d26e))
+  fix: allow empty it functions
+
 # 0.0.6
 
 - ([4776c16](https://github.com/angular/jasminewd/commit/4776c16b9a9f3a9a3de8a8dddc0e051cb32331b4))
