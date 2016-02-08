@@ -34,6 +34,13 @@ describe('things that should fail', function() {
     done.fail('an error from done.fail');
   });
 
+  it('should error asynchronously within done callback', function(done) {
+    setTimeout(function() {
+      expect(false).toBeTruthy();
+      done();
+    }, 200);
+  });
+
   it('should fail normal synchronous tests', function() {
     expect(true).toBe(false);
   });
