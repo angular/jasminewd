@@ -1,5 +1,18 @@
 # Changelog for jasminewd2
 
+# 0.0.8
+
+- ([5abc745](https://github.com/angular/protractor/commit/5abc7457cd73a4a4ba70b3c9ceeadac6d42bbd76))
+  chore(jasmine): update MatchFactory to allow message as function
+
+- ([750898c](https://github.com/angular/protractor/commit/750898c90a1cc1bef09384b60ef6e15adfe734f7))
+  fix(expectation): expectations without promises no longer add to task queue
+
+  Instead, expectations without promises in either expected or actual are unchanged from the
+  original Jasmine implementation.
+
+  See https://github.com/angular/protractor/issues/2894
+
 # 0.0.7
 
 - ([55fd11e](https://github.com/angular/protractor/commit/55fd11e69c2f1ba8fba9a19a8acccbe933896084))
