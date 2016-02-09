@@ -192,7 +192,7 @@ jasmine.Expectation.prototype.wrapCompare = function(name, matcherFactory) {
       var result = matcherCompare.apply(null, args);
 
       return webdriver.promise.when(result.pass).then(function(pass) {
-        var message = "";
+        var message = '';
 
         if (!pass) {
           if (!result.message) {
@@ -200,7 +200,11 @@ jasmine.Expectation.prototype.wrapCompare = function(name, matcherFactory) {
             args.unshift(name);
             message = expectation.util.buildFailureMessage.apply(null, args);
           } else {
-            message = result.message;
+            if (Object.prototype.toString.apply(result.message) === '[object Function]') {
+              message = result.message();
+            } else {
+              message = result.message;
+            }
           }
         }
 
