@@ -34,9 +34,15 @@ describe('things that should fail', function() {
     done.fail('an error from done.fail');
   });
 
+  it('should error asynchronously in promise callbacks', function() {
+    fakeDriver.sleep(50).then(function() {
+      expect(true).toEqual(false);
+    });
+  });
+
   it('should error asynchronously within done callback', function(done) {
     setTimeout(function() {
-      expect(false).toBeTruthy();
+      expect(false).toEqual(true);
       done();
     }, 200);
   });

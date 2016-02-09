@@ -153,6 +153,8 @@ global.expect = function(actual) {
   return originalExpect(actual);
 };
 
+var originalWrapCompare = jasmine.Expectation.prototype.wrapCompare;
+
 /**
  * Creates a matcher wrapper that resolves any promises given for actual and
  * expected values, as well as the `pass` property of the result.
@@ -165,11 +167,16 @@ jasmine.Expectation.prototype.wrapCompare = function(name, matcherFactory) {
 
     matchError.stack = matchError.stack.replace(/ +at.+jasminewd.+\n/, '');
 
-    webdriver.promise.when(expectation.actual).then(function(actual) {
-      return webdriver.promise.all(expected).then(function(expected) {
-        return compare(actual, expected);
+    if (!webdriver.promise.isPromise(expectation.actual) &&
+        !webdriver.promise.isPromise(expected)) {
+      originalWrapCompare(name, matcherFactory).apply(this, arguments);
+    } else {
+      webdriver.promise.when(expectation.actual).then(function(actual) {
+        return webdriver.promise.all(expected).then(function(expected) {
+          return compare(actual, expected);
+        });
       });
-    });
+    }
 
     function compare(actual, expected) {
       var args = expected.slice(0);
