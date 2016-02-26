@@ -153,8 +153,6 @@ global.expect = function(actual) {
   return originalExpect(actual);
 };
 
-var originalWrapCompare = jasmine.Expectation.prototype.wrapCompare;
-
 /**
  * Creates a matcher wrapper that resolves any promises given for actual and
  * expected values, as well as the `pass` property of the result.
@@ -169,7 +167,7 @@ jasmine.Expectation.prototype.wrapCompare = function(name, matcherFactory) {
 
     if (!webdriver.promise.isPromise(expectation.actual) &&
         !webdriver.promise.isPromise(expected)) {
-      originalWrapCompare(name, matcherFactory).apply(this, arguments);
+      compare(expectation.actual, expected);
     } else {
       webdriver.promise.when(expectation.actual).then(function(actual) {
         return webdriver.promise.all(expected).then(function(expected) {
@@ -191,36 +189,42 @@ jasmine.Expectation.prototype.wrapCompare = function(name, matcherFactory) {
 
       var result = matcherCompare.apply(null, args);
 
-      return webdriver.promise.when(result.pass).then(function(pass) {
-        var message = '';
+      if (webdriver.promise.isPromise(result.pass)) {
+       return webdriver.promise.when(result.pass).then(compareDone);
+      } else {
+       return compareDone(result.pass);
+      }
 
-        if (!pass) {
-          if (!result.message) {
-            args.unshift(expectation.isNot);
-            args.unshift(name);
-            message = expectation.util.buildFailureMessage.apply(null, args);
-          } else {
-            if (Object.prototype.toString.apply(result.message) === '[object Function]') {
-              message = result.message();
-            } else {
-              message = result.message;
-            }
-          }
-        }
+      function compareDone(pass) {
+       var message = '';
 
-        if (expected.length == 1) {
-          expected = expected[0];
+       if (!pass) {
+        if (!result.message) {
+         args.unshift(expectation.isNot);
+         args.unshift(name);
+         message = expectation.util.buildFailureMessage.apply(null, args);
+        } else {
+         if (Object.prototype.toString.apply(result.message) === '[object Function]') {
+          message = result.message();
+         } else {
+          message = result.message;
+         }
         }
-        var res = {
-          matcherName: name,
-          passed: pass,
-          message: message,
-          actual: actual,
-          expected: expected,
-          error: matchError
-        };
-        expectation.addExpectationResult(pass, res);
-      });
+       }
+
+       if (expected.length == 1) {
+        expected = expected[0];
+       }
+       var res = {
+        matcherName: name,
+        passed: pass,
+        message: message,
+        actual: actual,
+        expected: expected,
+        error: matchError
+       };
+       expectation.addExpectationResult(pass, res);
+      }
 
       function defaultNegativeCompare() {
         var result = matcher.compare.apply(null, args);

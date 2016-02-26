@@ -85,6 +85,16 @@ exports.getFakeDriver = function() {
           }
         }]);
       }, 'getValueList');
+    },
+    displayedElement: {
+      isDisplayed: function() {
+        return webdriver.promise.fulfilled(true);
+      }
+    },
+    hiddenElement: {
+      isDisplayed: function() {
+        return webdriver.promise.fulfilled(false);
+      }
     }
   };
 };

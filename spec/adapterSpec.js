@@ -155,6 +155,11 @@ describe('webdriverJS Jasmine adapter', function() {
     it('should compare a promise to a promise', function() {
       expect(fakeDriver.getValueA()).not.toEqual(fakeDriver.getValueB());
     });
+
+    it('should allow custom matchers to return a promise when actual is not a promise', function() {
+      expect(fakeDriver.displayedElement).toBeDisplayed();
+      expect(fakeDriver.hiddenElement).not.toBeDisplayed();
+    });
   });
 
   it('should throw an error with a WebElement actual value', function() {
