@@ -11,10 +11,12 @@
     "jasmine"
   ],
   "author": "Julie Ralph <ju.ralph@gmail.com>",
+  "dependencies": {
+    "selenium-webdriver": "2.48.2"
+  },
   "devDependencies": {
     "jshint": "2.5.0",
-    "jasmine": "2.4.1",
-    "selenium-webdriver": "2.48.2"
+    "jasmine": "2.4.1"
   },
   "repository": {
     "type": "git",
