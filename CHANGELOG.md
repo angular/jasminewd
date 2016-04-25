@@ -1,5 +1,13 @@
 # Changelog for jasminewd2
 
+# 0.0.9
+
+- ([790c81e](https://github.com/angular/protractor/commit/790c81eb0aba880fffbdcb4e834eb2161141620c))
+  fix(expectations): allow custom matchers to return a promise when actual is not a promise
+
+  See angular/protractor#2964
+
+
 # 0.0.8
 
 - ([5abc745](https://github.com/angular/protractor/commit/5abc7457cd73a4a4ba70b3c9ceeadac6d42bbd76))

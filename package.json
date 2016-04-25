@@ -14,7 +14,7 @@
   "devDependencies": {
     "jshint": "2.5.0",
     "jasmine": "2.4.1",
-    "selenium-webdriver": "2.48.2"
+    "selenium-webdriver": "2.52.0"
   },
   "repository": {
     "type": "git",
@@ -26,5 +26,5 @@
     "test": "scripts/test.sh"
   },
   "license": "MIT",
-  "version": "0.0.8"
+  "version": "0.0.9"
 }
