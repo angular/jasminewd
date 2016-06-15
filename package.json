@@ -12,9 +12,10 @@
   ],
   "author": "Julie Ralph <ju.ralph@gmail.com>",
   "devDependencies": {
-    "jshint": "2.5.0",
     "jasmine": "2.4.1",
-    "selenium-webdriver": "2.52.0"
+    "jshint": "2.5.0",
+    "selenium-webdriver": "2.52.0",
+    "typescript": "^1.8.10"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "pretest": "node_modules/.bin/jshint index.js spec",
+    "pretest": "node_modules/.bin/jshint index.js spec --exclude spec/asyncAwaitSpec.js; tsc -t ES2015 spec/asyncAwaitSpec.ts",
     "test": "scripts/test.sh"
   },
   "license": "MIT",
