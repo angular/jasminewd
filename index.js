@@ -97,6 +97,10 @@ function wrapInControlFlow(globalFn, fnName) {
             }
           }, flow);
         }, 'Run ' + fnName + description + ' in control flow').then(seal(done), function(err) {
+          if (!err) {
+            err = new Error('Unknown Error');
+            err.stack = '';
+          }
           err.stack = err.stack + '\nFrom asynchronous test: \n' + driverError.stack;
           done.fail(err);
         });
