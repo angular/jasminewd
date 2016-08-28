@@ -169,8 +169,18 @@ jasmine.Expectation.prototype.wrapCompare = function(name, matcherFactory) {
 
     matchError.stack = matchError.stack.replace(/ +at.+jasminewd.+\n/, '');
 
+
+    function areAnyExpectedValuesPromises(expected){
+      for (var i = 0; i < expected.length; i++) {
+        if(webdriver.promise.isPromise(expected[i])){
+          return true;
+        }
+      }
+      return false;
+    }
+
     if (!webdriver.promise.isPromise(expectation.actual) &&
-        !webdriver.promise.isPromise(expected)) {
+        !areAnyExpectedValuesPromises(expected)) {
       compare(expectation.actual, expected);
     } else {
       webdriver.promise.when(expectation.actual).then(function(actual) {

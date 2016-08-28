@@ -66,6 +66,11 @@ describe('webdriverJS Jasmine adapter', function() {
     expect(fakeDriver.getValueB()).toEqual('b');
   });
 
+  it('should compare a primitive to a promise', function() {
+    expect('a').toEqual(fakeDriver.getValueA());
+    expect('b').toEqual(fakeDriver.getValueB());
+  });
+
   it('beforeEach should wait for control flow', function() {
     expect(beforeEachMsg).toEqual('setup done');
   });
