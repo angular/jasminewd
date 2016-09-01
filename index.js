@@ -140,12 +140,12 @@ function wrapInControlFlow(flow, globalFn, fnName) {
 }
 
 /**
- * Initialize the Jasminewd adapter with a particlar webdriver instance. We
+ * Initialize the JasmineWd adapter with a particlar webdriver instance. We
  * pass webdriver here instead of using require() in order to ensure Protractor
  * and Jasminews are using the same webdriver instance.
  * @param {Object} flow. The ControlFlow to wrap tests in.
  */
-function initJasminewd(flow) {
+function initJasmineWd(flow) {
   global.it = wrapInControlFlow(flow, global.it, 'it');
   global.fit = wrapInControlFlow(flow, global.fit, 'fit');
   global.beforeEach = wrapInControlFlow(flow, global.beforeEach, 'beforeEach');
@@ -284,4 +284,4 @@ OnTimeoutReporter.prototype.specDone = function(result) {
   }
 };
 
-module.exports.init = initJasminewd;
+module.exports.init = initJasmineWd;
