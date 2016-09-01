@@ -6,8 +6,6 @@
 
 var webdriver = require('selenium-webdriver');
 
-var flow = webdriver.promise.controlFlow();
-
 /**
  * Wraps a function so that all passed arguments are ignored.
  * @param {!Function} fn The function to wrap.
@@ -67,7 +65,7 @@ function validateString(stringtoValidate) {
  * @param {!Function} globalFn The function to wrap.
  * @return {!Function} The new function.
  */
-function wrapInControlFlow(globalFn, fnName) {
+function wrapInControlFlow(flow, globalFn, fnName) {
   return function() {
     var driverError = new Error();
     driverError.stack = driverError.stack.replace(/ +at.+jasminewd.+\n/, '');
@@ -141,18 +139,36 @@ function wrapInControlFlow(globalFn, fnName) {
   };
 }
 
-global.it = wrapInControlFlow(global.it, 'it');
-global.fit = wrapInControlFlow(global.fit, 'fit');
-global.beforeEach = wrapInControlFlow(global.beforeEach, 'beforeEach');
-global.afterEach = wrapInControlFlow(global.afterEach, 'afterEach');
-global.beforeAll = wrapInControlFlow(global.beforeAll, 'beforeAll');
-global.afterAll = wrapInControlFlow(global.afterAll, 'afterAll');
+/**
+ * Initialize the Jasminewd adapter with a particlar webdriver instance. We
+ * pass webdriver here instead of using require() in order to ensure Protractor
+ * and Jasminews are using the same webdriver instance.
+ * @param {Object} flow. The ControlFlow to wrap tests in.
+ */
+function initJasminewd(flow) {
+  global.it = wrapInControlFlow(flow, global.it, 'it');
+  global.fit = wrapInControlFlow(flow, global.fit, 'fit');
+  global.beforeEach = wrapInControlFlow(flow, global.beforeEach, 'beforeEach');
+  global.afterEach = wrapInControlFlow(flow, global.afterEach, 'afterEach');
+  global.beforeAll = wrapInControlFlow(flow, global.beforeAll, 'beforeAll');
+  global.afterAll = wrapInControlFlow(flow, global.afterAll, 'afterAll');
+
+  // On timeout, the flow should be reset. This will prevent webdriver tasks
+  // from overflowing into the next test and causing it to fail or timeout
+  // as well. This is done in the reporter instead of an afterEach block
+  // to ensure that it runs after any afterEach() blocks with webdriver tasks
+  // get to complete first.
+  jasmine.getEnv().addReporter(new OnTimeoutReporter(function() {
+    console.warn('A Jasmine spec timed out. Resetting the WebDriver Control Flow.');
+    flow.reset();
+  }));
+}
 
 var originalExpect = global.expect;
 global.expect = function(actual) {
   if (actual instanceof webdriver.WebElement) {
-    throw 'expect called with WebElement argument, expected a Promise. ' +
-        'Did you mean to use .getText()?';
+    throw Error('expect called with WebElement argument, expected a Promise. ' +
+        'Did you mean to use .getText()?');
   }
   return originalExpect(actual);
 };
@@ -268,12 +284,4 @@ OnTimeoutReporter.prototype.specDone = function(result) {
   }
 };
 
-// On timeout, the flow should be reset. This will prevent webdriver tasks
-// from overflowing into the next test and causing it to fail or timeout
-// as well. This is done in the reporter instead of an afterEach block
-// to ensure that it runs after any afterEach() blocks with webdriver tasks
-// get to complete first.
-jasmine.getEnv().addReporter(new OnTimeoutReporter(function() {
-  console.warn('A Jasmine spec timed out. Resetting the WebDriver Control Flow.');
-  flow.reset();
-}));
+module.exports.init = initJasminewd;

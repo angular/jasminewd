@@ -1,6 +1,5 @@
 var webdriver = require('selenium-webdriver');
 var common = require('./common.js');
-require('../index.js');
 
 /**
  * Tests for the WebDriverJS Jasmine-Node Adapter. These tests use
@@ -167,8 +166,8 @@ describe('webdriverJS Jasmine adapter', function() {
 
     expect(function() {
       expect(webElement).toEqual(4);
-    }).toThrow('expect called with WebElement argument, expected a Promise. ' +
-        'Did you mean to use .getText()?');
+    }).toThrow(Error('expect called with WebElement argument, expected a Promise. ' +
+        'Did you mean to use .getText()?'));
   });
 
   it('should pass after the timed out tests', function() {

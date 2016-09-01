@@ -1,6 +1,5 @@
 var webdriver = require('selenium-webdriver');
 var common = require('./common.js');
-require('../index.js');
 
 /**
  * Error tests for the WebDriverJS Jasmine-Node Adapter. These tests use
