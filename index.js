@@ -146,6 +146,11 @@ function wrapInControlFlow(flow, globalFn, fnName) {
  * @param {Object} flow. The ControlFlow to wrap tests in.
  */
 function initJasmineWd(flow) {
+  if (jasmine.JasmineWdInitialized) {
+    throw Error('JasmineWd already initialized when init() was called');
+  }
+  jasmine.JasmineWdInitialized = true;
+
   global.it = wrapInControlFlow(flow, global.it, 'it');
   global.fit = wrapInControlFlow(flow, global.fit, 'fit');
   global.beforeEach = wrapInControlFlow(flow, global.beforeEach, 'beforeEach');

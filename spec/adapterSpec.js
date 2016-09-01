@@ -56,6 +56,11 @@ describe('webdriverJS Jasmine adapter', function() {
     beforeEachMsg = '';
   });
 
+  it('should only allow initializing once', function() {
+    expect(require('../index.js').init).toThrow(
+      Error('JasmineWd already initialized when init() was called'));
+  });
+
   it('should pass normal synchronous tests', function() {
     expect(true).toEqual(true);
   });
