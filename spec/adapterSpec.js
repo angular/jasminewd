@@ -1,6 +1,5 @@
 var webdriver = require('selenium-webdriver');
 var common = require('./common.js');
-require('../index.js');
 
 /**
  * Tests for the WebDriverJS Jasmine-Node Adapter. These tests use
@@ -55,6 +54,11 @@ describe('webdriverJS Jasmine adapter', function() {
 
   afterEach(function() {
     beforeEachMsg = '';
+  });
+
+  it('should only allow initializing once', function() {
+    expect(require('../index.js').init).toThrow(
+      Error('JasmineWd already initialized when init() was called'));
   });
 
   it('should pass normal synchronous tests', function() {
@@ -167,8 +171,8 @@ describe('webdriverJS Jasmine adapter', function() {
 
     expect(function() {
       expect(webElement).toEqual(4);
-    }).toThrow('expect called with WebElement argument, expected a Promise. ' +
-        'Did you mean to use .getText()?');
+    }).toThrow(Error('expect called with WebElement argument, expected a Promise. ' +
+        'Did you mean to use .getText()?'));
   });
 
   it('should pass after the timed out tests', function() {

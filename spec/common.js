@@ -1,8 +1,9 @@
-require('../index.js');
 var webdriver = require('selenium-webdriver');
 
+var flow = webdriver.promise.controlFlow();
+require('../index.js').init(flow);
+
 exports.getFakeDriver = function() {
-  var flow = webdriver.promise.controlFlow();
   return {
     controlFlow: function() {
       return flow;
