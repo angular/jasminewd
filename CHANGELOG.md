@@ -5,6 +5,12 @@
 - ([ff2e624](https://github.com/angular/jasminewd/commit/ff2e624159344cd83b04c6a6648334ba12e78ea6))
   fix(webdriver): Pass in the control flow.
 
+  BREAKING CHANGE: The control flow now needs to be passed in when using jasminewd. This fixes
+  an issue where having multiple versions of selenium-webdriver in a package's dependency tree would
+  result in jasminewd and protractor using different control flows.
+
+  See https://github.com/angular/protractor/issues/3505
+
 - ([db26b1a](https://github.com/angular/jasminewd/commit/db26b1a1e66477a6f526dac56ecaaa50d2cf4700))
   fix(stacktrace): do not crash if beforeEach block is rejected without any stated reason (#45)
 
