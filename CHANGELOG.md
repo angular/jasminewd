@@ -7,7 +7,8 @@
 
   BREAKING CHANGE: The control flow now needs to be passed in when using jasminewd. This fixes
   an issue where having multiple versions of selenium-webdriver in a package's dependency tree would
-  result in jasminewd and protractor using different control flows.
+  result in jasminewd and protractor using different control flows. You now have to initialize
+  jasminewd before you can use it, like so: `require('jasminewd2').init(webdriver.promise.controlFlow());`
 
   See https://github.com/angular/protractor/issues/3505
 
