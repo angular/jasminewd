@@ -14,7 +14,7 @@
   "devDependencies": {
     "jasmine": "2.4.1",
     "jshint": "2.5.0",
-    "selenium-webdriver": "2.53.3",
+    "selenium-webdriver": "^3.0.0-beta-3",
     "typescript": "^2.0.0"
   },
   "repository": {
@@ -23,7 +23,9 @@
   },
   "main": "index.js",
   "scripts": {
-    "pretest": "node_modules/.bin/jshint index.js spec --exclude spec/asyncAwaitSpec.js; tsc -t ES2015 spec/asyncAwaitSpec.ts",
+    "jshint": "jshint index.js spec",
+    "tsc": "tsc -t ES2015 spec/asyncAwaitSpec.ts",
+    "pretest": "npm run jshint && npm run tsc",
     "test": "scripts/test.sh"
   },
   "license": "MIT",
