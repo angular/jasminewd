@@ -190,12 +190,28 @@ jasmine.Expectation.prototype.wrapCompare = function(name, matcherFactory) {
 
     matchError.stack = matchError.stack.replace(/ +at.+jasminewd.+\n/, '');
 
-    if (!webdriver.promise.isPromise(expectation.actual) &&
-        !webdriver.promise.isPromise(expected)) {
-      compare(expectation.actual, expected);
+    var actualValue = null;
+    var expectedValue = null;
+
+    // Check to see if the value is of type webdriver.promise.Deferred
+    // since deferred is not a promise.
+    if (expectation.actual instanceof webdriver.promise.Deferred) {
+      actualValue = expectation.actual.promise;
     } else {
-      webdriver.promise.when(expectation.actual).then(function(actual) {
-        return webdriver.promise.all(expected).then(function(expected) {
+      actualValue = expectation.actual;
+    }
+    if (expected instanceof webdriver.promise.Deferred) {
+      expectedValue = expected.promise;
+    } else {
+      expectedValue = expected;
+    }
+
+    if (!webdriver.promise.isPromise(actualValue) &&
+        !webdriver.promise.isPromise(expectedValue)) {
+      compare(actualValue, expectedValue);
+    } else {
+      webdriver.promise.when(actualValue).then(function(actual) {
+        return webdriver.promise.all(expectedValue).then(function(expected) {
           return compare(actual, expected);
         });
       });
