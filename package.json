@@ -23,7 +23,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "pretest": "node_modules/.bin/jshint index.js spec --exclude spec/asyncAwaitSpec.js; tsc -t ES2015 spec/asyncAwaitSpec.ts",
+    "pretest": "node_modules/.bin/jshint index.js spec --exclude spec/asyncAwaitSpec*.js; tsc -t ES2015 spec/asyncAwaitSpec*.ts",
     "test": "scripts/test.sh"
   },
   "license": "MIT",
