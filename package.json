@@ -29,5 +29,8 @@
     "test": "scripts/test.sh"
   },
   "license": "MIT",
+  "engines": {
+    "node": ">= 6.9.0"
+  },
   "version": "0.1.0-beta.0"
 }
