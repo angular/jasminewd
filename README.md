@@ -15,7 +15,7 @@ Features
 
  - If a `done` function is passed to the test, waits for both the control flow and until done is called.
 
- - If a test returns a promise, waits for both the the control flow and the promise to resolve.
+ - If a test returns a promise, waits for both the control flow and the promise to resolve.
 
  - Enhances `expect` so that it automatically unwraps promises before performing the assertion.
 
