@@ -73,8 +73,8 @@ function wrapInControlFlow(flow, globalFn, fnName) {
     function asyncTestFn(fn, description) {
       description = description ? ('("' + description + '")') : '';
       return function(done) {
-        var async = fn.length > 0;
-        testFn = fn.bind(this);
+        var async = fn.length > 0,
+          testFn = fn.bind(this);
 
         flow.execute(function controlFlowExecute() {
           return new webdriver.promise.Promise(function(fulfill, reject) {
