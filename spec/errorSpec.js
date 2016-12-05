@@ -59,6 +59,11 @@ describe('things that should fail', function() {
     expect(fakeDriver.getValueB()).toEqual('e');
   });
 
+  it('should compare a primitive to a promise', function() {
+    expect('e').toEqual(fakeDriver.getValueA());
+    expect('f').toEqual(fakeDriver.getValueB());
+  });
+
   it('should wait till the expect to run the flow', function() {
     var promiseA = fakeDriver.getValueA();
     expect(promiseA.isPending()).toBe(true);
