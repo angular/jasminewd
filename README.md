@@ -64,7 +64,7 @@ describe('tests with webdriver', function() {
 `async` functions / `await`
 ---------------------------
 
-`async` functions and the `await` keyword are likely coming in ES7, and
+`async` functions and the `await` keyword are likely coming in ES2017 (ES8), and
 available via several compilers.  At the moment, they often break the WebDriver
 control flow.
 ([GitHub issue](https://github.com/SeleniumHQ/selenium/issues/3037)).  You can
