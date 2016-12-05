@@ -144,13 +144,21 @@ function wrapInControlFlow(flow, globalFn, fnName) {
  * pass webdriver here instead of using require() in order to ensure Protractor
  * and Jasminews are using the same webdriver instance.
  * @param {Object} flow. The ControlFlow to wrap tests in.
+ * @param {function=} WDPromise The class for promises managed by the
+ *     ControlFlow.  This is an optional parameter.  If you use it, jasminewd
+ *     will overwrite the global `Promise` class with this so that tools like
+ *     async/await work.  This might cause other unexpected problems however.
  */
-function initJasmineWd(flow) {
+function initJasmineWd(flow, WDPromise) {
   if (jasmine.JasmineWdInitialized) {
     throw Error('JasmineWd already initialized when init() was called');
   }
   jasmine.JasmineWdInitialized = true;
 
+  if (WDPromise) {
+    WDPromise.prototype = global.Promise || WDPromise.prototype;
+    global.Promise = WDPromise;
+  }
   global.it = wrapInControlFlow(flow, global.it, 'it');
   global.fit = wrapInControlFlow(flow, global.fit, 'fit');
   global.beforeEach = wrapInControlFlow(flow, global.beforeEach, 'beforeEach');
