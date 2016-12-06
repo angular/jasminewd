@@ -242,4 +242,25 @@ describe('webdriverJS Jasmine adapter', function() {
       expect(spec3.description).toBe('test3');
     });
   });
+
+  describe('native promises', function() {
+    var currentTest = null;
+
+    it('should wait for webdriver events sent from native promise', function() {
+      currentTest = 'A';
+      return new Promise(function(resolve) {
+        setTimeout(function() {
+          fakeDriver.sleep(100).then(function() {
+            expect(currentTest).toBe('A');
+          });
+          resolve();
+        }, 100);
+      });
+    });
+
+    it('should not start a test before another finishes', function(done) {
+      currentTest = 'B';
+      setTimeout(done, 200);
+    });
+  });
 });

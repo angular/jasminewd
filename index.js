@@ -7,17 +7,6 @@
 var webdriver = require('selenium-webdriver');
 
 /**
- * Wraps a function so that all passed arguments are ignored.
- * @param {!Function} fn The function to wrap.
- * @return {!Function} The wrapped function.
- */
-function seal(fn) {
-  return function() {
-    fn();
-  };
-}
-
-/**
  * Validates that the parameter is a function.
  * @param {Object} functionToValidate The function to validate.
  * @throws {Error}
@@ -60,9 +49,27 @@ function validateString(stringtoValidate) {
 }
 
 /**
+ * Calls a function once the control flow is idle
+ * @param {webdriver.promise.ControlFlow} flow The Web Driver control flow
+ * @param {!Function} fn The function to call
+ */
+function callWhenIdle(flow, fn) {
+  if (flow.isIdle()) {
+    fn();
+  } else {
+    flow.once(webdriver.promise.ControlFlow.EventType.IDLE, function() {
+      fn();
+    });
+  }
+}
+
+
+/**
  * Wraps a function so it runs inside a webdriver.promise.ControlFlow and
  * waits for the flow to complete before continuing.
+ * @param {!webdriver.promise.ControlFlow} flow The WebDriver control flow.
  * @param {!Function} globalFn The function to wrap.
+ * @param {!string} fnName The name of the function being wrapped (e.g. `'it'`).
  * @return {!Function} The new function.
  */
 function wrapInControlFlow(flow, globalFn, fnName) {
@@ -78,30 +85,38 @@ function wrapInControlFlow(flow, globalFn, fnName) {
 
         flow.execute(function controlFlowExecute() {
           return new webdriver.promise.Promise(function(fulfill, reject) {
+            function wrappedReject(err) {
+              var wrappedErr = new Error(err);
+              reject(wrappedErr);
+            }
             if (async) {
               // If testFn is async (it expects a done callback), resolve the promise of this
               // test whenever that callback says to.  Any promises returned from testFn are
               // ignored.
               var proxyDone = fulfill;
-              proxyDone.fail = function(err) {
-                var wrappedErr = new Error(err);
-                reject(wrappedErr);
-              };
+              proxyDone.fail = wrappedReject;
               testFn(proxyDone);
             } else {
               // Without a callback, testFn can return a promise, or it will
               // be assumed to have completed synchronously.
-              fulfill(testFn());
+              var ret = testFn();
+              if (webdriver.promise.isPromise(ret)) {
+                ret.then(fulfill, wrappedReject);
+              } else {
+                fulfill(ret);
+              }
             }
           }, flow);
-        }, 'Run ' + fnName + description + ' in control flow').then(seal(done), function(err) {
-          if (!err) {
-            err = new Error('Unknown Error');
-            err.stack = '';
+        }, 'Run ' + fnName + description + ' in control flow').then(
+          callWhenIdle.bind(null, flow, done), function(err) {
+            if (!err) {
+              err = new Error('Unknown Error');
+              err.stack = '';
+            }
+            err.stack = err.stack + '\nFrom asynchronous test: \n' + driverError.stack;
+            callWhenIdle(flow, done.fail.bind(done, err));
           }
-          err.stack = err.stack + '\nFrom asynchronous test: \n' + driverError.stack;
-          done.fail(err);
-        });
+        );
       };
     }
 
