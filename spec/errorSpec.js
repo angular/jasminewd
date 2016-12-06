@@ -102,4 +102,24 @@ describe('things that should fail', function() {
     expect(fakeDriver.getDecimalNumber()).toBeCloseTo(3.1);
     expect(fakeDriver.getDecimalNumber()).not.toBeCloseTo(3.14);
   });
+
+  describe('native promises', function() {
+    var testADone = false;
+
+    it('should handle rejection from native promise', function() {
+      return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+          fakeDriver.sleep(100).then(function() {
+            testADone = true;
+          });
+          reject('Rejected promise');
+        }, 100);
+      });
+    });
+
+    it('should not start a test before another finishes', function(done) {
+      expect(testADone).toBe(true); // this test actually passes
+      setTimeout(done, 200);
+    });
+  });
 });
