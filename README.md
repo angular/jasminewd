@@ -20,7 +20,7 @@ Features
 Installation
 ------------
 ```
-npm install jasminewd
+npm install jasminewd2
 ```
 
 Usage
@@ -30,15 +30,17 @@ Assumes selenium-webdriver as a peer dependency.
 
 ```js
 // In your setup.
-var minijn = require('minijasminenode');
-require('jasminewd');
+var JasmineRunner = require('jasmine');
+var jrunner = new JasmineRunner();
+require('jasminewd2');
 
 global.driver = new webdriver.Builder().
     usingServer('http://localhost:4444/wd/hub').
     withCapabilities({browserName: 'chrome'}).
     build();
 
-minijn.executeSpecs(/* ... */);
+jrunner.projectBaseDir = '';
+jrunner.execute(['**/*_spec.js']);
 
 // In your tests
 
