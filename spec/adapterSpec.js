@@ -138,7 +138,7 @@ describe('webdriverJS Jasmine adapter', function() {
 
     fakeDriver.getValueList().then(function(list) {
       var result = list.map(function(webElem) {
-        var webElemsPromise = webdriver.promise.fulfilled(webElem).then(function(webElem) {
+        var webElemsPromise = webdriver.promise.when(webElem).then(function(webElem) {
           return [webElem];
         });
         return webdriver.promise.fullyResolved(checkTexts(webElemsPromise));
@@ -244,6 +244,12 @@ describe('webdriverJS Jasmine adapter', function() {
   });
 
   describe('native promises', function() {
+    it('should have done argument override return returned promise', function(done) {
+      var ret = new Promise(function() {});
+      done();
+      return ret;
+    }); 
+
     var currentTest = null;
 
     it('should wait for webdriver events sent from native promise', function() {

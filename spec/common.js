@@ -13,88 +13,88 @@ exports.getFakeDriver = function() {
     },
     setUp: function() {
       return flow.execute(function() {
-        return webdriver.promise.fulfilled('setup done');
+        return webdriver.promise.when('setup done');
       }, 'setUp');
     },
     getValueA: function() {
       return flow.execute(function() {
         return webdriver.promise.delayed(500).then(function() {
-          return webdriver.promise.fulfilled('a');
+          return webdriver.promise.when('a');
         });
       }, 'getValueA');
     },
     getOtherValueA: function() {
       return flow.execute(function() {
-        return webdriver.promise.fulfilled('a');
+        return webdriver.promise.when('a');
       }, 'getOtherValueA');
     },
     getValueB: function() {
       return flow.execute(function() {
-        return webdriver.promise.fulfilled('b');
+        return webdriver.promise.when('b');
       }, 'getValueB');
     },
     getBigNumber: function() {
       return flow.execute(function() {
-        return webdriver.promise.fulfilled(1111);
+        return webdriver.promise.when(1111);
       }, 'getBigNumber');
     },
     getSmallNumber: function() {
       return flow.execute(function() {
-        return webdriver.promise.fulfilled(11);
+        return webdriver.promise.when(11);
       }, 'getSmallNumber');
     },
     getDecimalNumber: function() {
         return flow.execute(function() {
-          return webdriver.promise.fulfilled(3.14159);
+          return webdriver.promise.when(3.14159);
         }, 'getDecimalNumber');
       },
     getDisplayedElement: function() {
       return flow.execute(function() {
-        return webdriver.promise.fulfilled({
+        return webdriver.promise.when({
           isDisplayed: function() {
-            return webdriver.promise.fulfilled(true);
+            return webdriver.promise.when(true);
           }
         });
       }, 'getDisplayedElement');
     },
     getHiddenElement: function() {
       return flow.execute(function() {
-        return webdriver.promise.fulfilled({
+        return webdriver.promise.when({
           isDisplayed: function() {
-            return webdriver.promise.fulfilled(false);
+            return webdriver.promise.when(false);
           }
         });
       }, 'getHiddenElement');
     },
     getValueList: function() {
       return flow.execute(function() {
-        return webdriver.promise.fulfilled([{
+        return webdriver.promise.when([{
           getText: function() {
-            return flow.execute(function() { return webdriver.promise.fulfilled('a');});
+            return flow.execute(function() { return webdriver.promise.when('a');});
           }
         }, {
           getText: function() {
-            return flow.execute(function() { return webdriver.promise.fulfilled('b');});
+            return flow.execute(function() { return webdriver.promise.when('b');});
           }
         }, {
           getText: function() {
-            return flow.execute(function() { return webdriver.promise.fulfilled('c');});
+            return flow.execute(function() { return webdriver.promise.when('c');});
           }
         }, {
           getText: function() {
-            return flow.execute(function() { return webdriver.promise.fulfilled('d');});
+            return flow.execute(function() { return webdriver.promise.when('d');});
           }
         }]);
       }, 'getValueList');
     },
     displayedElement: {
       isDisplayed: function() {
-        return webdriver.promise.fulfilled(true);
+        return webdriver.promise.when(true);
       }
     },
     hiddenElement: {
       isDisplayed: function() {
-        return webdriver.promise.fulfilled(false);
+        return webdriver.promise.when(false);
       }
     }
   };

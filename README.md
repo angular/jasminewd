@@ -69,4 +69,5 @@ available via several compilers.  At the moment, they often break the WebDriver
 control flow.
 ([GitHub issue](https://github.com/SeleniumHQ/selenium/issues/3037)).  You can
 still use them, but if you do then you will have to use `await`/Promises for
-almost all your synchronization.  See `spec/asyncAwaitSpec.ts` for details.
+almost all your synchronization.  See `spec/asyncAwaitAdapterSpec.ts` and
+`spec/asyncAwaitErrorSpec.ts` for examples.
