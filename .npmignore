@@ -1,5 +1,7 @@
 node_modules/
 spec/
 scripts/
-.travis.yml
+.gitignore
+.jshintignore
 .npmignore
+.travis.yml

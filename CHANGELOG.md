@@ -1,5 +1,9 @@
 # Changelog for jasminewd2
 
+# 0.1.0
+
+Release for the selenium-webdriver 3.0.1 upgrade.
+
 # 0.1.0-beta.1
 
 - ([5fe36a6](https://github.com/angular/jasminewd/commit/5fe36a60102b9033180d68b238ab233a25a52393))
