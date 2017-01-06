@@ -76,9 +76,9 @@ describe('webdriverJS Jasmine adapter', function() {
 
   it('should wait till the expect to run the flow', function() {
     var promiseA = fakeDriver.getValueA();
-    expect(promiseA.isPending()).toBe(true);
+    expect(common.isPending(promiseA)).toBe(true);
     expect(promiseA).toEqual('a');
-    expect(promiseA.isPending()).toBe(true);
+    expect(common.isPending(promiseA)).toBe(true);
   });
 
   it('should compare a promise to a promise', function() {

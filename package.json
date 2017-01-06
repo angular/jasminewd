@@ -11,11 +11,13 @@
     "jasmine"
   ],
   "author": "Julie Ralph <ju.ralph@gmail.com>",
-  "devDependencies": {
+  "dependencies": {
     "jasmine": "2.4.1",
-    "jshint": "2.5.0",
-    "selenium-webdriver": "2.53.3",
-    "typescript": "^2.0.0"
+    "selenium-webdriver": "3.0.1"
+  },
+  "devDependencies": {
+    "jshint": "^2.9.4",
+    "typescript": "^2.0.10"
   },
   "repository": {
     "type": "git",
@@ -23,9 +25,14 @@
   },
   "main": "index.js",
   "scripts": {
-    "pretest": "node_modules/.bin/jshint index.js spec; tsc -t ES2015 spec/asyncAwaitSpec.ts",
+    "jshint": "jshint index.js spec",
+    "tsc": "tsc -t ES2015 spec/asyncAwaitSpec.ts",
+    "pretest": "npm run jshint && npm run tsc",
     "test": "scripts/test.sh"
   },
   "license": "MIT",
-  "version": "0.0.10"
+  "engines": {
+    "node": ">= 6.9.0"
+  },
+  "version": "0.1.0-beta.1"
 }

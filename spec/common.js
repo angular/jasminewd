@@ -123,3 +123,7 @@ exports.getMatchers = function() {
     }
   };
 };
+
+exports.isPending = function(managedPromise) {
+  return managedPromise.state_ === 'pending';
+};

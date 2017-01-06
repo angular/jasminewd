@@ -1,5 +1,34 @@
 # Changelog for jasminewd2
 
+# 0.1.0-beta.1
+
+- ([5fe36a6](https://github.com/angular/jasminewd/commit/5fe36a60102b9033180d68b238ab233a25a52393))
+  deps(selenium-webdriver): upgrade to 3.0.0 (#63)
+
+  fix test "should wait till the expect to run the flow"
+
+  - `isPending` exists but it is no longer part of `ManagedPromise`
+  - `isPending` also is no longer exported in `lib/promise.js`
+  - wrote an `isPending` similar to selenium-webdriver in common.js
+   require a minimum node version
+
+  - selenium-webdriver 3.0.0 requires node >= 6.9.0
+  - update travis test to use node 6
+
+# 0.1.0-beta.0
+
+This beta release is for the selenium-webdriver 3.0.0-beta-3 upgrade.
+
+## Dependencies
+
+- ([70c9f62](https://github.com/angular/jasminewd/commit/70c9f62af50018bea6ad326e12bacd9ca03e6ae5))
+  upgrade(isPromise): expose the deferred object's promise (#58)
+
+  - isPromise checks to see if the input parameter has a then method
+  - Deferred class has a promise property and no longer has a then method
+- ([8870365](https://github.com/angular/jasminewd/commit/88703656b4f8a012a084ba184a4fe473f423a200))
+  deps(selenium-webdriver): upgrade to 3.0.0-beta-3 (#57)
+
 # 0.0.10
 
 - ([ff2e624](https://github.com/angular/jasminewd/commit/ff2e624159344cd83b04c6a6648334ba12e78ea6))
