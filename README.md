@@ -1,4 +1,4 @@
-jasminewd [![Build Status](https://travis-ci.org/angular/jasminewd.png?branch=master)](https://travis-ci.org/angular/jasminewd)
+jasminewd [![Build Status](https://travis-ci.org/angular/jasminewd.svg?branch=master)](https://travis-ci.org/angular/jasminewd)
 =========
 
 Adapter for Jasmine-to-WebDriverJS. Used by [Protractor](http://www.github.com/angular/protractor).
