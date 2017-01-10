@@ -1,5 +1,10 @@
 # Changelog for jasminewd2
 
+# 0.1.1
+
+- ([cf1cd34](https://github.com/angular/jasminewd/commit/cf1cd34a4089b6492160349a10d717c7bcaa2c31))
+  chore(isPromise): revert expose deferred object's promise (#78)
+
 # 0.1.0
 
 Release for the selenium-webdriver 3.0.1 upgrade.
