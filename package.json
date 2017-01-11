@@ -16,6 +16,7 @@
     "selenium-webdriver": "3.0.1"
   },
   "devDependencies": {
+    "@types/jasmine": "^2.5.40",
     "@types/node": "^6.0.56",
     "@types/selenium-webdriver": "^2.53.38",
     "jasmine": "2.4.1",

@@ -6,7 +6,7 @@
     "sourceMap": false,
     "declaration": false,
     "removeComments": false,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "outDir": "built_spec"
   },
   "include": [

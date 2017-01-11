@@ -61,6 +61,24 @@ describe('tests with webdriver', function() {
 })
 ```
 
+TypeScript
+----------
+
+For the typings related to the changes in the global jasmine variables (e.g.
+allowing `it()` blocks to return a promise), we publish the package
+`@types/jasminewd2`.  If you are writing tests using jasminewd (including
+Protractor tests), be sure to include `@types/jasminewd2` in your
+`devDependencies`, as these global type modifications are ***not*** bundled with
+the `jasminewd2` npm module.
+
+jasminewd also exports one function directly: `init`.  Unfortunately, we do not
+publish typings for this function.  If you call this function directly (e.g. you
+are a Protractor dev), you should simply do:
+
+```ts
+require('jasminewd2').init(controlFlow);
+```
+
 `async` functions / `await`
 ---------------------------
 

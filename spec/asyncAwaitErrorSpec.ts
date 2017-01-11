@@ -1,14 +1,4 @@
-const common = require('./common');
-
-declare function expect(actual: any): any;
-declare function describe(description: string, tests: Function): void;
-declare function it(description: string, test?: Function, timeout?: number): any;
-declare function xit(description: string, test?: Function, timeout?: number): any;
-declare function beforeEach(setup: Function): void;
-declare function beforeAll(setup: Function): void;
-declare function afterEach(setup: Function): void;
-declare function afterAll(setup: Function): void;
-declare var jasmine;
+import {getFakeDriver, getMatchers} from './common.js';
 
 /**
  * This file is very similar to errorSpec.ts, but we use async/await instead of
@@ -16,7 +6,7 @@ declare var jasmine;
  * work regardless of if the WebDriver Control Flow is disabled.
  */
 
-const fakeDriver = common.getFakeDriver();
+const fakeDriver = getFakeDriver();
 
 /* jshint esversion: 6 */
 describe('Timeout cases', function() {
@@ -38,7 +28,7 @@ describe('Timeout cases', function() {
 
 describe('things that should fail', function() {
   beforeEach(function() {
-    jasmine.addMatchers(common.getMatchers());
+    jasmine.addMatchers(getMatchers());
   });
 
   it('should pass errors from done callback', function(done) {

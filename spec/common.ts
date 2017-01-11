@@ -1,110 +1,110 @@
-var webdriver = require('selenium-webdriver');
+import {promise as wdpromise, WebElement} from 'selenium-webdriver';
 
-var flow = webdriver.promise.controlFlow();
+const flow = wdpromise.controlFlow();
 require('../index.js').init(flow);
 
-exports.getFakeDriver = function() {
+export function getFakeDriver() {
   return {
     controlFlow: function() {
       return flow;
     },
-    sleep: function(ms) {
+    sleep: function(ms: number) {
       return flow.timeout(ms);
     },
     setUp: function() {
       return flow.execute(function() {
-        return webdriver.promise.when('setup done');
+        return wdpromise.when('setup done');
       }, 'setUp');
     },
     getValueA: function() {
       return flow.execute(function() {
-        return webdriver.promise.delayed(500).then(function() {
-          return webdriver.promise.when('a');
+        return wdpromise.delayed(500).then(function() {
+          return wdpromise.when('a');
         });
       }, 'getValueA');
     },
     getOtherValueA: function() {
       return flow.execute(function() {
-        return webdriver.promise.when('a');
+        return wdpromise.when('a');
       }, 'getOtherValueA');
     },
     getValueB: function() {
       return flow.execute(function() {
-        return webdriver.promise.when('b');
+        return wdpromise.when('b');
       }, 'getValueB');
     },
-    getBigNumber: function() {
+    getBigNumber: function(): wdpromise.Promise<number> {
       return flow.execute(function() {
-        return webdriver.promise.when(1111);
+        return wdpromise.when(1111);
       }, 'getBigNumber');
     },
-    getSmallNumber: function() {
+    getSmallNumber: function(): wdpromise.Promise<number> {
       return flow.execute(function() {
-        return webdriver.promise.when(11);
+        return wdpromise.when(11);
       }, 'getSmallNumber');
     },
-    getDecimalNumber: function() {
+    getDecimalNumber: function(): wdpromise.Promise<number> {
         return flow.execute(function() {
-          return webdriver.promise.when(3.14159);
+          return wdpromise.when(3.14159);
         }, 'getDecimalNumber');
       },
     getDisplayedElement: function() {
       return flow.execute(function() {
-        return webdriver.promise.when({
+        return wdpromise.when({
           isDisplayed: function() {
-            return webdriver.promise.when(true);
+            return wdpromise.when(true);
           }
         });
       }, 'getDisplayedElement');
     },
     getHiddenElement: function() {
       return flow.execute(function() {
-        return webdriver.promise.when({
+        return wdpromise.when({
           isDisplayed: function() {
-            return webdriver.promise.when(false);
+            return wdpromise.when(false);
           }
         });
       }, 'getHiddenElement');
     },
-    getValueList: function() {
+    getValueList: function(): wdpromise.Promise<Array<{getText: () => wdpromise.Promise<string>}>> {
       return flow.execute(function() {
-        return webdriver.promise.when([{
+        return wdpromise.when([{
           getText: function() {
-            return flow.execute(function() { return webdriver.promise.when('a');});
+            return flow.execute(function() { return wdpromise.when('a');});
           }
         }, {
           getText: function() {
-            return flow.execute(function() { return webdriver.promise.when('b');});
+            return flow.execute(function() { return wdpromise.when('b');});
           }
         }, {
           getText: function() {
-            return flow.execute(function() { return webdriver.promise.when('c');});
+            return flow.execute(function() { return wdpromise.when('c');});
           }
         }, {
           getText: function() {
-            return flow.execute(function() { return webdriver.promise.when('d');});
+            return flow.execute(function() { return wdpromise.when('d');});
           }
         }]);
       }, 'getValueList');
     },
     displayedElement: {
       isDisplayed: function() {
-        return webdriver.promise.when(true);
+        return wdpromise.when(true);
       }
     },
     hiddenElement: {
       isDisplayed: function() {
-        return webdriver.promise.when(false);
+        return wdpromise.when(false);
       }
     }
   };
 };
 
-exports.getMatchers = function() {
+export function getMatchers() {
   return {
     toBeLotsMoreThan: function() {
       return {
-        compare: function(actual, expected) {
+        compare: function(actual: number, expected: number) {
           return {
             pass: actual > expected + 100
           };
@@ -114,7 +114,7 @@ exports.getMatchers = function() {
     // Example custom matcher returning a promise that resolves to true/false.
     toBeDisplayed: function() {
       return {
-        compare: function(actual, expected) {
+        compare: function(actual: WebElement, expected: void) {
           return {
             pass: actual.isDisplayed()
           };
@@ -124,6 +124,17 @@ exports.getMatchers = function() {
   };
 };
 
-exports.isPending = function(managedPromise) {
-  return managedPromise.state_ === 'pending';
+// declare custom matcher types
+declare global {
+  namespace jasmine {
+    interface Matchers {
+      toBeLotsMoreThan(expected: number | Promise<number>): Promise<void>;
+      toBeDisplayed(): Promise<void>; 
+    }
+  }
+}
+
+
+export function isPending(managedPromise: wdpromise.Promise<any>) {
+  return (managedPromise as any).state_ === 'pending';
 };
