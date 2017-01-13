@@ -104,6 +104,12 @@ describe('things that should fail', function() {
   });
 
   describe('native promises', function() {
+    it('should time out if done argument is never called, even if promise is returned',
+      function(done) {
+        return new Promise(function() {});
+      }
+    ); 
+
     var testADone = false;
 
     it('should handle rejection from native promise', function() {

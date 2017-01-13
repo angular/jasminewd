@@ -1,6 +1,9 @@
 node_modules/
 spec/
+built_spec/
 scripts/
+tsconfig.json
+tslint.json
 .gitignore
 .jshintignore
 .npmignore

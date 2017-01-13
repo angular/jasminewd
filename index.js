@@ -5,6 +5,7 @@
  */
 
 var webdriver = require('selenium-webdriver');
+var maybePromise = require('./maybePromise');
 
 /**
  * Validates that the parameter is a function.
@@ -54,7 +55,7 @@ function validateString(stringtoValidate) {
  * @param {!Function} fn The function to call
  */
 function callWhenIdle(flow, fn) {
-  if (flow.isIdle()) {
+  if (!flow.isIdle || flow.isIdle()) {
     fn();
   } else {
     flow.once(webdriver.promise.ControlFlow.EventType.IDLE, function() {
@@ -84,7 +85,14 @@ function wrapInControlFlow(flow, globalFn, fnName) {
         var testFn = fn.bind(this);
 
         flow.execute(function controlFlowExecute() {
-          return new webdriver.promise.Promise(function(fulfill, reject) {
+          function newPromise(resolver) {
+            if (typeof flow.promise == 'function') {
+              return flow.promise(resolver);
+            } else {
+              return new webdriver.promise.Promise(resolver, flow);
+            }
+          }
+          return newPromise(function(fulfill, reject) {
             function wrappedReject(err) {
               var wrappedErr = new Error(err);
               reject(wrappedErr);
@@ -106,7 +114,7 @@ function wrapInControlFlow(flow, globalFn, fnName) {
                 fulfill(ret);
               }
             }
-          }, flow);
+          });
         }, 'Run ' + fnName + description + ' in control flow').then(
           callWhenIdle.bind(null, flow, done), function(err) {
             if (!err) {
@@ -173,15 +181,17 @@ function initJasmineWd(flow) {
   global.beforeAll = wrapInControlFlow(flow, global.beforeAll, 'beforeAll');
   global.afterAll = wrapInControlFlow(flow, global.afterAll, 'afterAll');
 
-  // On timeout, the flow should be reset. This will prevent webdriver tasks
-  // from overflowing into the next test and causing it to fail or timeout
-  // as well. This is done in the reporter instead of an afterEach block
-  // to ensure that it runs after any afterEach() blocks with webdriver tasks
-  // get to complete first.
-  jasmine.getEnv().addReporter(new OnTimeoutReporter(function() {
-    console.warn('A Jasmine spec timed out. Resetting the WebDriver Control Flow.');
-    flow.reset();
-  }));
+  if (flow.reset) {
+    // On timeout, the flow should be reset. This will prevent webdriver tasks
+    // from overflowing into the next test and causing it to fail or timeout
+    // as well. This is done in the reporter instead of an afterEach block
+    // to ensure that it runs after any afterEach() blocks with webdriver tasks
+    // get to complete first.
+    jasmine.getEnv().addReporter(new OnTimeoutReporter(function() {
+      console.warn('A Jasmine spec timed out. Resetting the WebDriver Control Flow.');
+      flow.reset();
+    }));
+  }
 }
 
 var originalExpect = global.expect;
@@ -196,6 +206,10 @@ global.expect = function(actual) {
 /**
  * Creates a matcher wrapper that resolves any promises given for actual and
  * expected values, as well as the `pass` property of the result.
+ *
+ * Wrapped matchers will return either `undefined` or a promise which resolves
+ * when the matcher is complete, depending on if the matcher had to resolve any
+ * promises.
  */
 jasmine.Expectation.prototype.wrapCompare = function(name, matcherFactory) {
   return function() {
@@ -205,16 +219,12 @@ jasmine.Expectation.prototype.wrapCompare = function(name, matcherFactory) {
 
     matchError.stack = matchError.stack.replace(/ +at.+jasminewd.+\n/, '');
 
-    if (!webdriver.promise.isPromise(expectation.actual) &&
-        !webdriver.promise.isPromise(expected)) {
-      compare(expectation.actual, expected);
-    } else {
-      webdriver.promise.when(expectation.actual).then(function(actual) {
-        return webdriver.promise.all(expected).then(function(expected) {
-          return compare(actual, expected);
-        });
+    // Return either undefined or a promise of undefined
+    return maybePromise(expectation.actual, function(actual) {
+      return maybePromise.all(expected, function(expected) {
+        return compare(actual, expected);
       });
-    }
+    });
 
     function compare(actual, expected) {
       var args = expected.slice(0);
@@ -229,12 +239,9 @@ jasmine.Expectation.prototype.wrapCompare = function(name, matcherFactory) {
 
       var result = matcherCompare.apply(null, args);
 
-      if (webdriver.promise.isPromise(result.pass)) {
-       return webdriver.promise.when(result.pass).then(compareDone);
-      } else {
-       return compareDone(result.pass);
-      }
+      return maybePromise(result.pass, compareDone);
 
+      // compareDone always returns undefined
       function compareDone(pass) {
        var message = '';
 
@@ -268,13 +275,9 @@ jasmine.Expectation.prototype.wrapCompare = function(name, matcherFactory) {
 
       function defaultNegativeCompare() {
         var result = matcher.compare.apply(null, args);
-        if (webdriver.promise.isPromise(result.pass)) {
-          result.pass = result.pass.then(function(pass) {
-            return !pass;
-          });
-        } else {
-          result.pass = !result.pass;
-        }
+        result.pass = maybePromise(result.pass, function(pass) {
+          return !pass;
+        });
         return result;
       }
     }
