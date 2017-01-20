@@ -39,7 +39,27 @@ echo "result: $results_line"
 
 export SELENIUM_PROMISE_MANAGER=0
 
-echo "### running async/await passing specs"
+echo "### running async/await passing specs with control flow disabled"
+CMD=$CMD_BASE$NO_CF_PASSING_SPECS
+echo "### $CMD"
+$CMD
+[ "$?" -eq 0 ] || exit 1
+echo
+
+EXPECTED_RESULTS="19 specs, 17 failures"
+echo "### running async/await failing specs (expecting $EXPECTED_RESULTS)"
+CMD=$CMD_BASE$NO_CF_FAILING_SPECS
+echo "### $CMD"
+res=`$CMD 2>/dev/null`
+results_line=`echo "$res" | tail -2 | head -1`
+echo "result: $results_line"
+[ "$results_line" = "$EXPECTED_RESULTS" ] || exit 1
+
+# Run only the async/await tests with no scheduler
+
+export JASMINEWD_TESTS_NO_SCHEDULER=1
+
+echo "### running async/await passing specs with no scheduler"
 CMD=$CMD_BASE$NO_CF_PASSING_SPECS
 echo "### $CMD"
 $CMD

@@ -49,31 +49,42 @@ function validateString(stringtoValidate) {
   }
 }
 
+var idleEventName = 'idle';
+try {
+  idleEventName = webdriver.promise.ControlFlow.EventType.IDLE;
+} catch(e) {}
+
 /**
- * Calls a function once the control flow is idle
- * @param {webdriver.promise.ControlFlow} flow The Web Driver control flow
- * @param {!Function} fn The function to call
+ * Calls a function once the scheduler is idle.  If the scheduler does not support the idle API,
+ * calls the function immediately.  See scheduler.md#idle-api for details.
+ *
+ * @param {Object} scheduler The scheduler to wait for.
+ * @param {!Function} fn The function to call.
  */
-function callWhenIdle(flow, fn) {
-  if (!flow.isIdle || flow.isIdle()) {
+function callWhenIdle(scheduler, fn) {
+  if (!scheduler.once || !scheduler.isIdle || scheduler.isIdle()) {
     fn();
   } else {
-    flow.once(webdriver.promise.ControlFlow.EventType.IDLE, function() {
-      fn();
-    });
+    scheduler.once(idleEventName, function() { fn(); });
   }
 }
 
 
 /**
- * Wraps a function so it runs inside a webdriver.promise.ControlFlow and
- * waits for the flow to complete before continuing.
- * @param {!webdriver.promise.ControlFlow} flow The WebDriver control flow.
+ * Wraps a function so it runs inside a scheduler's `execute()` block.
+ *
+ * In the most common case, this means wrapping in a `webdriver.promise.ControlFlow` instance
+ * to wait for the control flow to complete one task before starting the next.  See scheduler.md
+ * for details.
+ *
+ * @param {!Object} scheduler See scheduler.md for details.
+ * @param {!Function} newPromise Makes a new promise using whatever implementation the scheduler
+ *   prefers.
  * @param {!Function} globalFn The function to wrap.
  * @param {!string} fnName The name of the function being wrapped (e.g. `'it'`).
  * @return {!Function} The new function.
  */
-function wrapInControlFlow(flow, globalFn, fnName) {
+function wrapInScheduler(scheduler, newPromise, globalFn, fnName) {
   return function() {
     var driverError = new Error();
     driverError.stack = driverError.stack.replace(/ +at.+jasminewd.+\n/, '');
@@ -84,14 +95,7 @@ function wrapInControlFlow(flow, globalFn, fnName) {
         var async = fn.length > 0;
         var testFn = fn.bind(this);
 
-        flow.execute(function controlFlowExecute() {
-          function newPromise(resolver) {
-            if (typeof flow.promise == 'function') {
-              return flow.promise(resolver);
-            } else {
-              return new webdriver.promise.Promise(resolver, flow);
-            }
-          }
+        scheduler.execute(function schedulerExecute() {
           return newPromise(function(fulfill, reject) {
             function wrappedReject(err) {
               var wrappedErr = new Error(err);
@@ -108,7 +112,7 @@ function wrapInControlFlow(flow, globalFn, fnName) {
               // Without a callback, testFn can return a promise, or it will
               // be assumed to have completed synchronously.
               var ret = testFn();
-              if (webdriver.promise.isPromise(ret)) {
+              if (maybePromise.isPromise(ret)) {
                 ret.then(fulfill, wrappedReject);
               } else {
                 fulfill(ret);
@@ -116,13 +120,13 @@ function wrapInControlFlow(flow, globalFn, fnName) {
             }
           });
         }, 'Run ' + fnName + description + ' in control flow').then(
-          callWhenIdle.bind(null, flow, done), function(err) {
+          callWhenIdle.bind(null, scheduler, done), function(err) {
             if (!err) {
               err = new Error('Unknown Error');
               err.stack = '';
             }
             err.stack = err.stack + '\nFrom asynchronous test: \n' + driverError.stack;
-            callWhenIdle(flow, done.fail.bind(done, err));
+            callWhenIdle(scheduler, done.fail.bind(done, err));
           }
         );
       };
@@ -163,25 +167,51 @@ function wrapInControlFlow(flow, globalFn, fnName) {
 }
 
 /**
- * Initialize the JasmineWd adapter with a particlar webdriver instance. We
- * pass webdriver here instead of using require() in order to ensure Protractor
- * and Jasminews are using the same webdriver instance.
- * @param {Object} flow. The ControlFlow to wrap tests in.
+ * Initialize the JasmineWd adapter with a particlar scheduler, generally a webdriver control flow.
+ *
+ * @param {Object=} scheduler The scheduler to wrap tests in. See scheduler.md for details.
+ *   Defaults to a mock scheduler that calls functions immediately.
  */
-function initJasmineWd(flow) {
+function initJasmineWd(scheduler) {
   if (jasmine.JasmineWdInitialized) {
     throw Error('JasmineWd already initialized when init() was called');
   }
   jasmine.JasmineWdInitialized = true;
 
-  global.it = wrapInControlFlow(flow, global.it, 'it');
-  global.fit = wrapInControlFlow(flow, global.fit, 'fit');
-  global.beforeEach = wrapInControlFlow(flow, global.beforeEach, 'beforeEach');
-  global.afterEach = wrapInControlFlow(flow, global.afterEach, 'afterEach');
-  global.beforeAll = wrapInControlFlow(flow, global.beforeAll, 'beforeAll');
-  global.afterAll = wrapInControlFlow(flow, global.afterAll, 'afterAll');
 
-  if (flow.reset) {
+  // Default to mock scheduler
+  if (!scheduler) {
+    scheduler = { execute: function(fn) {
+      return Promise.resolve().then(fn);
+    } };
+  }
+
+  // Figure out how we're getting new promises
+  var newPromise;
+  if (typeof scheduler.promise == 'function') {
+    newPromise = scheduler.promise.bind(scheduler);
+  } else if (webdriver.promise && webdriver.promise.ControlFlow &&
+      (scheduler instanceof webdriver.promise.ControlFlow) &&
+      (webdriver.promise.USE_PROMISE_MANAGER !== false)) {
+    newPromise = function(resolver) {
+      return new webdriver.promise.Promise(resolver, scheduler);
+    };
+  } else {
+    newPromise = function(resolver) {
+      return new Promise(resolver);
+    };
+  }
+
+  // Wrap functions
+  global.it = wrapInScheduler(scheduler, newPromise, global.it, 'it');
+  global.fit = wrapInScheduler(scheduler, newPromise, global.fit, 'fit');
+  global.beforeEach = wrapInScheduler(scheduler, newPromise, global.beforeEach, 'beforeEach');
+  global.afterEach = wrapInScheduler(scheduler, newPromise, global.afterEach, 'afterEach');
+  global.beforeAll = wrapInScheduler(scheduler, newPromise, global.beforeAll, 'beforeAll');
+  global.afterAll = wrapInScheduler(scheduler, newPromise, global.afterAll, 'afterAll');
+
+  // Reset API
+  if (scheduler.reset) {
     // On timeout, the flow should be reset. This will prevent webdriver tasks
     // from overflowing into the next test and causing it to fail or timeout
     // as well. This is done in the reporter instead of an afterEach block
@@ -189,7 +219,7 @@ function initJasmineWd(flow) {
     // get to complete first.
     jasmine.getEnv().addReporter(new OnTimeoutReporter(function() {
       console.warn('A Jasmine spec timed out. Resetting the WebDriver Control Flow.');
-      flow.reset();
+      scheduler.reset();
     }));
   }
 }
