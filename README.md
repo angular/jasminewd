@@ -28,24 +28,27 @@ npm install jasminewd2
 Usage
 -----
 
-Assumes selenium-webdriver as a peer dependency.
+In your setup:
 
 ```js
-// In your setup.
 var JasmineRunner = require('jasmine');
 var jrunner = new JasmineRunner();
-require('jasminewd2');
+var webdriver = require('selenium-webdriver');
 
 global.driver = new webdriver.Builder().
     usingServer('http://localhost:4444/wd/hub').
     withCapabilities({browserName: 'chrome'}).
     build();
 
+require('jasminewd2').init(driver.controlFlow(), webdriver);
+
 jrunner.projectBaseDir = '';
 jrunner.execute(['**/*_spec.js']);
+```
 
-// In your tests
+In your tests:
 
+```js
 describe('tests with webdriver', function() {
   it('will wait until webdriver is done', function() {
     // This will be an asynchronous test. It will finish once webdriver has
@@ -76,7 +79,7 @@ publish typings for this function.  If you call this function directly (e.g. you
 are a Protractor dev), you should simply do:
 
 ```ts
-require('jasminewd2').init(controlFlow);
+require('jasminewd2').init(controlFlow, webdriver);
 ```
 
 `async` functions / `await`
