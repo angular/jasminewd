@@ -1,5 +1,91 @@
 # Changelog for jasminewd2
 
+# 1.0.0
+
+## Breaking changes
+
+- ([fae803c](https://github.com/angular/protractor/commit/fae803cd294e5413523d37bdaa282a9f96cd65a1)) 
+  pass webdriver instance into `init()` instead of using `require()` (#83)
+
+  So where as before you would write:
+  
+  ```js
+  require('jasminewd').init(webdriver.promise.controlFlow());
+  ```
+  Now you will write:
+  
+  ```js
+  require('jasminewd').init(webdriver.promise.controlFlow(), webdriver);
+  ```
+
+  This removes the dependency on `selenium-webdriver` and protects jasminewd from having a
+  different webdriver instance than Protractor, which could be a huge problem if they had different
+  control flow settings.
+
+  This is a breaking change because it changes the API for the `init` function.
+
+  I also removed the dependency on jasmine, which didn't do anything anyway.  Maybe it should have
+  been a peerDependency but those are deprecated.
+
+
+## Features
+
+- ([171cbde](https://github.com/angular/protractor/commit/171cbde22f307bd3cc35c4c1785f171392dca8da)) 
+  Added types (though you'll have to wait for `@types/jasminewd2` to use them) (#79)
+
+
+- ([27b4850](https://github.com/angular/protractor/commit/27b485019589cd662ee69e7920893ffa50774b97)) 
+  Support `SELENIUM_PROMISE_MANAGER=0` (#72)
+
+  There are three major ways this was done in this change:
+  * In `callWhenIdle`, if `flow.isIdle` is not defined, we assume we are working with a
+    `SimpleScheduler` instance, and so the flow is effectively idle.
+  * In `initJasmineWd`, if `flow.reset` is not defined, we assume we are working with a
+    `SimpleScheduler` instance, and so don't bother resetting the flow.
+  * In `wrapInControlFlow`, we use `flow.promise` to create a new promise if possible.  Since
+    `new webdriver.promise.Promise()` would have always made a `ManagedPromise`, but `flow.promise`
+    will do the right thing.
+  * In `wrapCompare`, we avoid the webdriver library entirely, and never instance any extra
+    promises. Using `webdriver.promise.when` and `webdriver.promise.all` could have been a problem
+    if our instance of `webdriver` had the control flow turned on, but another instance somewhere
+    did not (or even the same instance, but just at a different point in time). Instead we use the
+    new `maybePromise` tool, which is a mess but is also exactly what we want.
+  * In `specs/*`, we replace `webdriver.promise.fulfilled` with `webdriver.promise.when`.
+  * In `specs/*`, a new version of `adapterSpec.js` and `errorSpec.js` are created:
+    `asyncAwaitAdapterSpec.ts` and `asyncAwaitErrorSpec.ts`.
+
+  I also also fixed a minor bug where we weren't correctly checking for promises inside an array of
+  expected results. Before we had:
+  
+  ```js
+  expected = Array.prototype.slice.call(arguments, 0);
+
+  ...
+
+  webdriver.promise.isPromise(expected);
+  ```
+
+  I thought about it for a little while, and there's no way that's correct.  `expected` is an
+  `Array<any>`, there's no way it has a `.then` function.
+
+  Closes https://github.com/angular/jasminewd/issues/69
+
+
+## Bug Fixes
+
+- ([369a249](https://github.com/angular/protractor/commit/369a2499189fbcdc541f354cfede49dba9335e6b)) 
+  Don't rely on `webdriver.promise` functions (#82)
+
+  While we support `SELENIUM_PROMISE_MANAGER=0` already, we rely on `SimpleScheduler` and some other
+  utility functions which will be going away after the control flow has been fully deprecated.  This
+  commit allows jasminewd to work without those utility functions, and even allows people to pass
+  jasminewd their own custom scheduler implementation.
+
+  This does not fix our tests, which will also break when those utility functions go away.  See
+  https://github.com/angular/jasminewd/issues/81
+
+  Closes https://github.com/angular/jasminewd/issues/80
+
 # 0.1.1
 
 - ([cf1cd34](https://github.com/angular/jasminewd/commit/cf1cd34a4089b6492160349a10d717c7bcaa2c31))
