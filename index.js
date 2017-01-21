@@ -4,7 +4,8 @@
  * https://code.google.com/p/selenium/source/browse/javascript/node/selenium-webdriver/testing/index.js
  */
 
-var webdriver = require('selenium-webdriver');
+var WebElement; // Equal to webdriver.WebElement
+var idleEventName = 'idle'; // Equal to webdriver.promise.ControlFlow.EventType.IDLE
 var maybePromise = require('./maybePromise');
 
 /**
@@ -48,11 +49,6 @@ function validateString(stringtoValidate) {
     throw Error(stringtoValidate + ' is not a string');
   }
 }
-
-var idleEventName = 'idle';
-try {
-  idleEventName = webdriver.promise.ControlFlow.EventType.IDLE;
-} catch(e) {}
 
 /**
  * Calls a function once the scheduler is idle.  If the scheduler does not support the idle API,
@@ -171,13 +167,29 @@ function wrapInScheduler(scheduler, newPromise, globalFn, fnName) {
  *
  * @param {Object=} scheduler The scheduler to wrap tests in. See scheduler.md for details.
  *   Defaults to a mock scheduler that calls functions immediately.
+ * @param {Object=} webdriver The result of `require('selenium-webdriver')`.  Passed in here rather
+ *   than required by jasminewd directly so that jasminewd can't end up up with a different version
+ *   of `selenium-webdriver` than your tests use.  If not specified, jasminewd will still work, but
+ *   it won't check for `WebElement` instances in expect() statements and could cause control flow
+ *   problems if your tests are using an old version of `selenium-webdriver` (e.g. version 2.53.0).
  */
-function initJasmineWd(scheduler) {
+function initJasmineWd(scheduler, webdriver) {
   if (jasmine.JasmineWdInitialized) {
     throw Error('JasmineWd already initialized when init() was called');
   }
   jasmine.JasmineWdInitialized = true;
 
+
+  // Pull information from webdriver instance
+  if (webdriver) {
+    WebElement = webdriver.WebElement || WebElement;
+    idleEventName = (
+            webdriver.promise &&
+            webdriver.promise.ControlFlow &&
+            webdriver.promise.ControlFlow.EventType &&
+            webdriver.promise.ControlFlow.EventType.IDLE
+        ) || idleEventname;
+  }
 
   // Default to mock scheduler
   if (!scheduler) {
@@ -190,7 +202,7 @@ function initJasmineWd(scheduler) {
   var newPromise;
   if (typeof scheduler.promise == 'function') {
     newPromise = scheduler.promise.bind(scheduler);
-  } else if (webdriver.promise && webdriver.promise.ControlFlow &&
+  } else if (webdriver && webdriver.promise && webdriver.promise.ControlFlow &&
       (scheduler instanceof webdriver.promise.ControlFlow) &&
       (webdriver.promise.USE_PROMISE_MANAGER !== false)) {
     newPromise = function(resolver) {
@@ -226,7 +238,7 @@ function initJasmineWd(scheduler) {
 
 var originalExpect = global.expect;
 global.expect = function(actual) {
-  if (actual instanceof webdriver.WebElement) {
+  if (WebElement && (actual instanceof WebElement)) {
     throw Error('expect called with WebElement argument, expected a Promise. ' +
         'Did you mean to use .getText()?');
   }
