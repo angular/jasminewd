@@ -1,6 +1,8 @@
 # Changelog for jasminewd2
 
-# 1.0.0
+# 2.0.0
+
+(Skipping 1.x because `0.0.1` was originally accidently published as `1.0.0`.)
 
 ## Breaking changes
 
