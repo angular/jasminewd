@@ -13,6 +13,17 @@ describe('maybePromise', function() {
     return promise;
   }
 
+  it('should be able to tell promises from non-promises', function() {
+    expect(maybePromise.isPromise(num)).toBe(false);
+    expect(maybePromise.isPromise(str)).toBe(false);
+    expect(maybePromise.isPromise(obj)).toBe(false);
+    expect(maybePromise.isPromise(idFun)).toBe(false);
+    expect(maybePromise.isPromise(promiseMe(num))).toBe(true);
+    expect(maybePromise.isPromise(promiseMe(str))).toBe(true);
+    expect(maybePromise.isPromise(promiseMe(obj))).toBe(true);
+    expect(maybePromise.isPromise(promiseMe(idFun))).toBe(true);
+  });
+
   describe('singletons', function() {
     it('should be able to use non-promises', function(done) {
       maybePromise(num, function(n) {

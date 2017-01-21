@@ -8,6 +8,18 @@
  * or may not be promises, and code execution may or may not be synchronous.
  */
 
+
+/**
+ * Determines if a value is a promise.
+ *
+ * @param {*} val The value to check.
+ * @return {boolean} true if val is a promise, false otherwise.
+ */
+function isPromise(val) {
+  return val && (typeof val.then == 'function');
+}
+
+
 /**
  * Runs a callback synchronously against non-promise values and asynchronously
  * against promises.  Similar to ES6's `Promise.resolve` except that it is
@@ -25,12 +37,14 @@
  *   resolving to the callback's return value is returned.
  */
 var maybePromise = module.exports = function maybePromise(val, callback) {
-  if (val && (typeof val.then == 'function')) {
+  if (isPromise(val)) {
     return val.then(callback);
   } else {
     return callback(val);
   }
 }
+
+maybePromise.isPromise = isPromise;
 
 /**
  * Like maybePromise() but for an array of values.  Analogous to `Promise.all`.

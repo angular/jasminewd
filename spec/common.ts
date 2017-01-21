@@ -1,7 +1,7 @@
 import {promise as wdpromise, WebElement} from 'selenium-webdriver';
 
 const flow = wdpromise.controlFlow();
-require('../index.js').init(flow);
+require('../index.js').init(process.env['JASMINEWD_TESTS_NO_SCHEDULER'] ? null : flow);
 
 export function getFakeDriver() {
   return {
