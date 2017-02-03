@@ -12,9 +12,16 @@
   ],
   "author": "Julie Ralph <ju.ralph@gmail.com>",
   "devDependencies": {
-    "jshint": "2.5.0",
-    "jasmine": "2.3.1",
-    "selenium-webdriver": "2.45.1"
+    "@types/jasmine": "^2.5.40",
+    "@types/node": "^6.0.56",
+    "@types/selenium-webdriver": "^2.53.38",
+    "jasmine": "2.4.1",
+    "jshint": "^2.9.4",
+    "selenium-webdriver": "3.0.1",
+    "tslint": "^4.2.0",
+    "tslint-eslint-rules": "^3.2.3",
+    "typescript": "^2.0.10",
+    "vrsource-tslint-rules": "^4.0.0"
   },
   "repository": {
     "type": "git",
@@ -22,9 +29,16 @@
   },
   "main": "index.js",
   "scripts": {
-    "pretest": "node_modules/.bin/jshint index.js spec",
+    "jshint": "jshint index.js spec",
+    "tslint": "tslint spec/*.ts",
+    "lint": "npm run jshint && npm run tslint",
+    "tsc": "tsc; cp spec/*.js built_spec",
+    "pretest": "npm run lint && npm run tsc",
     "test": "scripts/test.sh"
   },
   "license": "MIT",
-  "version": "0.0.5"
+  "engines": {
+    "node": ">= 6.9.x"
+  },
+  "version": "2.0.0"
 }

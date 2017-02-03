@@ -1,6 +1,6 @@
 {
-  "spec_dir": "spec",
+  "spec_dir": "built_spec",
   "spec_files": [
-    "adapterSpec.js"
+    "*dapterSpec.js"
   ]
 }

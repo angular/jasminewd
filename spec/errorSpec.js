@@ -1,6 +1,5 @@
 var webdriver = require('selenium-webdriver');
 var common = require('./common.js');
-require('../index.js');
 
 /**
  * Error tests for the WebDriverJS Jasmine-Node Adapter. These tests use
@@ -32,6 +31,19 @@ describe('things that should fail', function() {
 
   it('should pass errors from done callback', function(done) {
     done.fail('an error from done.fail');
+  });
+
+  it('should error asynchronously in promise callbacks', function() {
+    fakeDriver.sleep(50).then(function() {
+      expect(true).toEqual(false);
+    });
+  });
+
+  it('should error asynchronously within done callback', function(done) {
+    setTimeout(function() {
+      expect(false).toEqual(true);
+      done();
+    }, 200);
   });
 
   it('should fail normal synchronous tests', function() {
@@ -89,5 +101,31 @@ describe('things that should fail', function() {
     // Using default precision (2)
     expect(fakeDriver.getDecimalNumber()).toBeCloseTo(3.1);
     expect(fakeDriver.getDecimalNumber()).not.toBeCloseTo(3.14);
+  });
+
+  describe('native promises', function() {
+    it('should time out if done argument is never called, even if promise is returned',
+      function(done) {
+        return new Promise(function() {});
+      }
+    ); 
+
+    var testADone = false;
+
+    it('should handle rejection from native promise', function() {
+      return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+          fakeDriver.sleep(100).then(function() {
+            testADone = true;
+          });
+          reject('Rejected promise');
+        }, 100);
+      });
+    });
+
+    it('should not start a test before another finishes', function(done) {
+      expect(testADone).toBe(true); // this test actually passes
+      setTimeout(done, 200);
+    });
   });
 });

@@ -1,6 +1,5 @@
 var webdriver = require('selenium-webdriver');
 var common = require('./common.js');
-require('../index.js');
 
 /**
  * Tests for the WebDriverJS Jasmine-Node Adapter. These tests use
@@ -13,6 +12,12 @@ var fakeDriver = common.getFakeDriver();
 describe('webdriverJS Jasmine adapter plain', function() {
   it('should pass normal synchronous tests', function() {
     expect(true).toBe(true);
+  });
+
+  it('should allow an empty it block and mark as pending');
+
+  xit('should allow a spec marked as pending with xit', function() {
+    expect(true).toBe(false);
   });
 });
 
@@ -51,6 +56,11 @@ describe('webdriverJS Jasmine adapter', function() {
     beforeEachMsg = '';
   });
 
+  it('should only allow initializing once', function() {
+    expect(require('../index.js').init).toThrow(
+      Error('JasmineWd already initialized when init() was called'));
+  });
+
   it('should pass normal synchronous tests', function() {
     expect(true).toEqual(true);
   });
@@ -66,9 +76,9 @@ describe('webdriverJS Jasmine adapter', function() {
 
   it('should wait till the expect to run the flow', function() {
     var promiseA = fakeDriver.getValueA();
-    expect(promiseA.isPending()).toBe(true);
+    expect(common.isPending(promiseA)).toBe(true);
     expect(promiseA).toEqual('a');
-    expect(promiseA.isPending()).toBe(true);
+    expect(common.isPending(promiseA)).toBe(true);
   });
 
   it('should compare a promise to a promise', function() {
@@ -109,6 +119,34 @@ describe('webdriverJS Jasmine adapter', function() {
       expect(fakeDriver.getDecimalNumber()).toBeCloseTo(3.14);
     });
 
+  it('should allow iterating through arrays', function() {
+    // This is a convoluted test which shows a real issue which
+    // cropped up in version changes to the selenium-webdriver module.
+    // See https://github.com/angular/protractor/pull/2263
+    var checkTexts = function(webElems) {
+      var texts = webElems.then(function(arr) {
+        var results = arr.map(function(webElem) {
+          return webElem.getText();
+        });
+        return webdriver.promise.all(results);
+      });
+
+      expect(texts).not.toContain('e');
+
+      return true;
+    };
+
+    fakeDriver.getValueList().then(function(list) {
+      var result = list.map(function(webElem) {
+        var webElemsPromise = webdriver.promise.when(webElem).then(function(webElem) {
+          return [webElem];
+        });
+        return webdriver.promise.fullyResolved(checkTexts(webElemsPromise));
+      });
+      return webdriver.promise.all(result);
+    });
+  });
+
   describe('not', function() {
     it('should still pass normal synchronous tests', function() {
       expect(4).not.toEqual(5);
@@ -121,6 +159,11 @@ describe('webdriverJS Jasmine adapter', function() {
     it('should compare a promise to a promise', function() {
       expect(fakeDriver.getValueA()).not.toEqual(fakeDriver.getValueB());
     });
+
+    it('should allow custom matchers to return a promise when actual is not a promise', function() {
+      expect(fakeDriver.displayedElement).toBeDisplayed();
+      expect(fakeDriver.hiddenElement).not.toBeDisplayed();
+    });
   });
 
   it('should throw an error with a WebElement actual value', function() {
@@ -128,8 +171,8 @@ describe('webdriverJS Jasmine adapter', function() {
 
     expect(function() {
       expect(webElement).toEqual(4);
-    }).toThrow('expect called with WebElement argument, expected a Promise. ' +
-        'Did you mean to use .getText()?');
+    }).toThrow(Error('expect called with WebElement argument, expected a Promise. ' +
+        'Did you mean to use .getText()?'));
   });
 
   it('should pass after the timed out tests', function() {
@@ -185,6 +228,45 @@ describe('webdriverJS Jasmine adapter', function() {
 
     it('should wait for control flow', function() {
       expect(setupMsg).toEqual('setup done');
+    });
+  });
+
+  describe('it return value', function() {
+    var spec1 = it('test1');
+    var spec2 = it('test2', function() {});
+    var spec3 = it('test3', function() {}, 1);
+
+    it('should return the spec', function() {
+      expect(spec1.description).toBe('test1');
+      expect(spec2.description).toBe('test2');
+      expect(spec3.description).toBe('test3');
+    });
+  });
+
+  describe('native promises', function() {
+    it('should have done argument override return returned promise', function(done) {
+      var ret = new Promise(function() {});
+      done();
+      return ret;
+    }); 
+
+    var currentTest = null;
+
+    it('should wait for webdriver events sent from native promise', function() {
+      currentTest = 'A';
+      return new Promise(function(resolve) {
+        setTimeout(function() {
+          fakeDriver.sleep(100).then(function() {
+            expect(currentTest).toBe('A');
+          });
+          resolve();
+        }, 100);
+      });
+    });
+
+    it('should not start a test before another finishes', function(done) {
+      currentTest = 'B';
+      setTimeout(done, 200);
     });
   });
 });

@@ -1,4 +1,10 @@
 node_modules/
 spec/
-.travis.yml
+built_spec/
+scripts/
+tsconfig.json
+tslint.json
+.gitignore
+.jshintignore
 .npmignore
+.travis.yml
