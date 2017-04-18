@@ -94,8 +94,10 @@ function wrapInScheduler(scheduler, newPromise, globalFn, fnName) {
         scheduler.execute(function schedulerExecute() {
           return newPromise(function(fulfill, reject) {
             function wrappedReject(err) {
-              var wrappedErr = new Error(err);
-              reject(wrappedErr);
+              if(err instanceof Error)
+                reject(err);
+              else 
+                reject(new Error(err));
             }
             if (async) {
               // If testFn is async (it expects a done callback), resolve the promise of this
