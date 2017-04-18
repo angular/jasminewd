@@ -294,7 +294,7 @@ jasmine.Expectation.prototype.wrapCompare = function(name, matcherFactory) {
          message = expectation.util.buildFailureMessage.apply(null, args);
         } else {
          if (Object.prototype.toString.apply(result.message) === '[object Function]') {
-          message = result.message();
+          message = result.message(expectation.isNot);
          } else {
           message = result.message;
          }
