@@ -15,7 +15,7 @@ var maybePromise = require('./maybePromise');
  * @return {Object} The original parameter.
  */
 function validateFunction(functionToValidate) {
-  if (functionToValidate && Object.prototype.toString.call(functionToValidate) === '[object Function]') {
+  if (functionToValidate && typeof functionToValidate === 'function') {
     return functionToValidate;
   } else {
     throw Error(functionToValidate + ' is not a function');
