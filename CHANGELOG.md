@@ -1,5 +1,22 @@
 # Changelog for jasminewd2
 
+# 2.1.0
+
+## Features
+
+- ([41577a5](https://github.com/angular/jasminewd/commit/41577a5e10420d255fb2ec12aa0ea3a8e72f14ca)) 
+  support native async functions (node 7.6+) (#87)
+
+## Bug Fixes
+
+- ([0137d3f](https://github.com/angular/jasminewd/commit/0137d3f2ae96ef6d51d00055d64b5a8103ae83d0)) 
+  minor fix to keep stack from original error (#86)
+
+- ([374f494](https://github.com/angular/jasminewd/commit/374f4946972673f86e06a011e20fc039bb73e234)) 
+  Allow to specify a function as a custom matcher's message. (#29)
+
+
+
 # 2.0.0
 
 (Skipping 1.x because `0.0.1` was originally accidently published as `1.0.0`.)
